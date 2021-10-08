@@ -13,18 +13,17 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class HelloWorldControllerTest {
 
-    String token;
-
-    Gson gson = new Gson();
     @Autowired
     private MockMvc mockMvc;
+
+    String token;
+    Gson gson = new Gson();
 
     @Test
     void createAuthenticationToken() throws Exception {
@@ -32,7 +31,6 @@ class HelloWorldControllerTest {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isOk());
     }
 
@@ -51,5 +49,11 @@ class HelloWorldControllerTest {
         this.mockMvc.perform(get("/hello")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void firstPageWithOutToken() throws Exception {
+        this.mockMvc.perform(get("/hello"))
+                .andExpect(status().isForbidden());
     }
 }
