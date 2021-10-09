@@ -3,6 +3,10 @@ package com.elon.demo.security.controller;
 import com.elon.demo.security.model.AuthenticationRequest;
 import com.elon.demo.security.service.MyUserDetailsService;
 import com.elon.demo.security.util.JwtUtil;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +34,10 @@ public class HelloWorldController {
     }
 
     @PostMapping(value = "/authenticate")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = {@Content(examples = @ExampleObject(value = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmb28iLCJleHAiOjE2MzM4MzcwMjcsImlhdCI6MTYzMzgwMTAyN30.D6WgrqwSy1l3-w84wvvsXYCGECpZdMLDhjw_SCl0VRk"))}),
+            @ApiResponse(responseCode = "403", description = "账号密码不正确")
+    })
     public ResponseEntity<String> createAuthenticationToken(@RequestBody @Valid AuthenticationRequest authenticationRequest) throws Exception {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
