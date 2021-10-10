@@ -29,4 +29,5 @@ The following guides illustrate how to use some features concretely:
 * [Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring)
 * [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)
 * [Enable Authorize button in springdoc-openapi-ui for Bearer Token Authentication (JWT)](https://stackoverflow.com/questions/59898874/enable-authorize-button-in-springdoc-openapi-ui-for-bearer-token-authentication)
+* [CORS with Spring](https://www.baeldung.com/spring-cors)
 
