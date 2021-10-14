@@ -1,4 +1,4 @@
-package com.elon.demo.openapi;
+package com.elon.demo.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

@@ -1,16 +1,15 @@
-package com.elon.demo.security.model;
+package com.elon.demo.user.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import java.io.Serializable;
 
 @Getter
 @Setter
-@AllArgsConstructor
-public class AuthenticationRequest implements Serializable {
+public class UserRequest {
+    @NotBlank
+    private String name;
     @NotBlank
     private String username;
     @NotBlank

@@ -1,6 +1,6 @@
-package com.elon.demo.security.controller;
+package com.elon.demo.authentication.controller;
 
-import com.elon.demo.security.model.AuthenticationRequest;
+import com.elon.demo.authentication.model.AuthenticationRequest;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class HelloWorldControllerTest {
+class AuthenticationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

@@ -25,6 +25,7 @@ The following guides illustrate how to use some features concretely:
 * [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
 * [Accessing data with MySQL](https://spring.io/guides/gs/accessing-data-mysql/)
 * [Can I use MapStruct together with Project Lombok?](https://mapstruct.org/faq/)
+* [Quick Guide to MapStruct](https://www.baeldung.com/mapstruct)
 * [Spring Boot Security + JWT Hello World Example](https://www.javainuse.com/spring/boot-jwt)
 * [Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring)
 * [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)

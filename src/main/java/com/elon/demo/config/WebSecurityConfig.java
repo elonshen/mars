@@ -1,6 +1,6 @@
-package com.elon.demo.security.config;
+package com.elon.demo.config;
 
-import com.elon.demo.security.filter.JwtRequestFilter;
+import com.elon.demo.authentication.filter.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -29,7 +29,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 
     @Override
@@ -42,8 +42,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/authenticate", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
-                .permitAll()
+                .antMatchers("/authentication", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                // Spring security added prefix "ROLE_" to all roles name? https://stackoverflow.com/questions/33205236/spring-security-added-prefix-role-to-all-roles-name
+//                .antMatchers("/users/**").access("hasAuthority('admin')")
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
