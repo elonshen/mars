@@ -31,4 +31,5 @@ The following guides illustrate how to use some features concretely:
 * [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)
 * [Enable Authorize button in springdoc-openapi-ui for Bearer Token Authentication (JWT)](https://stackoverflow.com/questions/59898874/enable-authorize-button-in-springdoc-openapi-ui-for-bearer-token-authentication)
 * [CORS with Spring](https://www.baeldung.com/spring-cors)
+* [Mocking and Spying Beans](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing.spring-boot-applications.mocking-beans)
 

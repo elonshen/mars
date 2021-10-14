@@ -1,17 +1,26 @@
 package com.elon.demo.authentication.controller;
 
 import com.elon.demo.authentication.model.AuthenticationRequest;
+import com.elon.demo.user.UserRepository;
+import com.elon.demo.user.model.Role;
+import com.elon.demo.user.model.User;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -23,23 +32,25 @@ class AuthenticationControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @MockBean
+    private UserRepository userRepository;
+
     String token;
     Gson gson = new Gson();
 
-    @Test
-    void createAuthenticationToken() throws Exception {
-        String body = gson.toJson(new AuthenticationRequest("foo", "foo"));
-        this.mockMvc.perform(MockMvcRequestBuilders.post("/authenticate")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
     @BeforeEach
     void setUp() throws Exception {
-        String body = gson.toJson(new AuthenticationRequest("foo", "foo"));
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/authenticate")
+        User user = new User();
+        user.setUsername("admin");
+        user.setPassword("$2a$10$9G..MOnHMx6/RSU52p1t6.jCtGBE/MOfZf5PaR7mzZGBys4vyg2j6");
+        user.setName("foo");
+        Role role = new Role();
+        role.setName("admin");
+        user.setRoles(new HashSet<>(Arrays.asList(role)));
+        given(this.userRepository.findByUsername("admin")).willReturn(Optional.of(user));
+
+        String body = gson.toJson(new AuthenticationRequest("admin", "123456"));
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/authentication")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andReturn();
@@ -47,15 +58,25 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    void firstPage() throws Exception {
-        this.mockMvc.perform(get("/hello")
+    void testNormalLogin() throws Exception {
+        String body = gson.toJson(new AuthenticationRequest("admin", "123456"));
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/authentication")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testAccessResouceWithToken() throws Exception {
+        this.mockMvc.perform(get("/authentication/hello")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void firstPageWithOutToken() throws Exception {
-        this.mockMvc.perform(get("/hello"))
+    void testAccessResouceWithOutToken() throws Exception {
+        this.mockMvc.perform(get("/authentication/hello"))
                 .andExpect(status().isForbidden());
     }
 }
