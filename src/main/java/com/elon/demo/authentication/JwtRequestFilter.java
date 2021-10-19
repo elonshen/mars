@@ -1,7 +1,5 @@
-package com.elon.demo.authentication.filter;
+package com.elon.demo.authentication;
 
-import com.elon.demo.authentication.service.MyUserDetailsService;
-import com.elon.demo.authentication.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

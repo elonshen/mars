@@ -1,4 +1,4 @@
-package com.elon.demo.authentication.util;
+package com.elon.demo.authentication;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

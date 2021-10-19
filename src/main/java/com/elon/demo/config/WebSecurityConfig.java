@@ -1,6 +1,6 @@
 package com.elon.demo.config;
 
-import com.elon.demo.authentication.filter.JwtRequestFilter;
+import com.elon.demo.authentication.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

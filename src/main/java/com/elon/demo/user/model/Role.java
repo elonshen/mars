@@ -1,6 +1,7 @@
 package com.elon.demo.user.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,4 +20,7 @@ public class Role {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
+    public Role(Long id) {
+        this.id = id;
+    }
 }

@@ -1,4 +1,4 @@
-package com.elon.demo.authentication.service;
+package com.elon.demo.authentication;
 
 import com.elon.demo.authentication.model.MyUserDetails;
 import com.elon.demo.user.UserService;

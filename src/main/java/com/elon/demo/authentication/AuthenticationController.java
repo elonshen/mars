@@ -1,12 +1,11 @@
-package com.elon.demo.authentication.controller;
+package com.elon.demo.authentication;
 
 import com.elon.demo.authentication.model.AuthenticationRequest;
-import com.elon.demo.authentication.service.MyUserDetailsService;
-import com.elon.demo.authentication.util.JwtUtil;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,6 +18,7 @@ import javax.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/authentication")
+@Tag(name = "authentication")
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
@@ -32,7 +32,7 @@ public class AuthenticationController {
 
     @PostMapping
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = {@Content(examples = @ExampleObject(value = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmb28iLCJleHAiOjE2MzM4MzcwMjcsImlhdCI6MTYzMzgwMTAyN30.D6WgrqwSy1l3-w84wvvsXYCGECpZdMLDhjw_SCl0VRk"))}),
+            @ApiResponse(responseCode = "200", content = {@Content(examples = @ExampleObject(value = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYzNTc3NjQ2NywiaWF0IjoxNjM0NDgwNDY3fQ.FG1jp0mQodtslGfSHShrgo2DOkKQcj_pCvLRe5Q5t3w"))}),
     })
     public String createAuthenticationToken(@RequestBody @Valid AuthenticationRequest authenticationRequest) {
         try {
