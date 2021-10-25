@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -44,7 +43,6 @@ public class UserController {
     }
 
     @GetMapping
-    @Transactional
     @Operation(summary = "get user paging information")
     public Page<UserVo> getUserInfo(@RequestParam(required = false) String name, @ParameterObject @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         Page<User> userPage = userService.findByNameContaining(name, pageable);

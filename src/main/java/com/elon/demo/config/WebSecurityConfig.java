@@ -40,20 +40,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable()
+        httpSecurity.cors().and().csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/authentication", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-                // Spring security added prefix "ROLE_" to all roles name? https://stackoverflow.com/questions/33205236/spring-security-added-prefix-role-to-all-roles-name
-//                .antMatchers("/users/**").access("hasAuthority('admin')")
+//                .antMatchers("/users/**").access("hasAuthority('editor')") // Spring security added prefix "ROLE_" to all roles name? https://stackoverflow.com/questions/33205236/spring-security-added-prefix-role-to-all-roles-name
                 .anyRequest().authenticated()
-                .and()
-                .exceptionHandling()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-                .cors();
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
 }

@@ -31,8 +31,9 @@ The following guides illustrate how to use some features concretely:
 * [Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring)
 * [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)
 * [Mapping of Pageable-Object to correct URL-Parameter in Swagger UI](https://github.com/springdoc/springdoc-openapi/issues/177)
-* [Enable Authorize button in springdoc-openapi-ui for Bearer Token Authentication (JWT)](https://stackoverflow.com/questions/59898874/enable-authorize-button-in-springdoc-openapi-ui-for-bearer-token-authentication)
+* [How do I add authorization header in requests?](https://springdoc.org/#how-do-i-add-authorization-header-in-requests)
 * [CORS with Spring](https://www.baeldung.com/spring-cors)
 * [Spring boot enable Global CORS support issue: only GET is working, POST, PUT and Delete are not working](https://stackoverflow.com/questions/35315090/spring-boot-enable-global-cors-support-issue-only-get-is-working-post-put-and)
 * [Mocking and Spying Beans](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing.spring-boot-applications.mocking-beans)
+* [How to run a shell script at startup](https://stackoverflow.com/questions/12973777/how-to-run-a-shell-script-at-startup?rq=1)
 
