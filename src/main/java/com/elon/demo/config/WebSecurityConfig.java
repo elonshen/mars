@@ -42,7 +42,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/authentication", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                .antMatchers("/authentication",
+                        "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**",
+                        "/**/*.html","/**/*.js","/**/*.css","/**/*.ico","/**/*.woff","/**/*.ttf").permitAll()
 //                .antMatchers("/users/**").access("hasAuthority('editor')") // Spring security added prefix "ROLE_" to all roles name? https://stackoverflow.com/questions/33205236/spring-security-added-prefix-role-to-all-roles-name
                 .anyRequest().authenticated()
                 .and()
