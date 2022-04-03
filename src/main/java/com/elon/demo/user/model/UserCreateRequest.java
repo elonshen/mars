@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -15,5 +14,5 @@ public class UserCreateRequest {
     private String username;
     @NotBlank
     private String password;
-    private Set<Long> roles;
+    private String role;
 }

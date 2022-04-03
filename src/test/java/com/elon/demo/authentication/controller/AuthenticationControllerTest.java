@@ -2,7 +2,6 @@ package com.elon.demo.authentication.controller;
 
 import com.elon.demo.authentication.model.AuthenticationRequest;
 import com.elon.demo.user.UserRepository;
-import com.elon.demo.user.model.Role;
 import com.elon.demo.user.model.User;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
@@ -44,9 +41,7 @@ class AuthenticationControllerTest {
         user.setUsername("admin");
         user.setPassword("$2a$10$9G..MOnHMx6/RSU52p1t6.jCtGBE/MOfZf5PaR7mzZGBys4vyg2j6");
         user.setName("foo");
-        Role role = new Role();
-        role.setName("admin");
-        user.setRoles(new HashSet<>(Arrays.asList(role)));
+        user.setRole("admin");
         given(this.userRepository.findByUsername("admin")).willReturn(Optional.of(user));
 
         String body = gson.toJson(new AuthenticationRequest("admin", "123456"));

@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Table(name = "user")
 @Entity
@@ -27,17 +26,13 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @ManyToMany
-    @JoinTable(name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
+    private String role;
 
     public User(User user) {
         this.id = user.id;
         this.name = user.name;
         this.username = user.username;
         this.password = user.password;
-        this.roles = user.roles;
+        this.role = user.role;
     }
 }

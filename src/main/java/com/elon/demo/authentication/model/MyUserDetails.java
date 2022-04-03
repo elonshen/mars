@@ -1,14 +1,11 @@
 package com.elon.demo.authentication.model;
 
-import com.elon.demo.user.model.Role;
 import com.elon.demo.user.model.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MyUserDetails extends User implements UserDetails {
 
@@ -16,9 +13,7 @@ public class MyUserDetails extends User implements UserDetails {
 
     public MyUserDetails(User user) {
         super(user);
-        this.authorities = user.getRoles().stream().map(Role::getName)
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        this.authorities = List.of(user::getRole);
     }
 
     @Override

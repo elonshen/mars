@@ -24,7 +24,7 @@ import javax.validation.Valid;
 @RequestMapping(path = "/users")
 @Tag(name = "user")
 public class UserController {
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
@@ -32,7 +32,7 @@ public class UserController {
     public void save(@RequestBody @Valid UserCreateRequest userCreateRequest) {
         User user = userMapper.toUser(userCreateRequest);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userService.create(user);
+        userRepository.save(user);
     }
 
     @GetMapping("/current")
@@ -45,21 +45,30 @@ public class UserController {
     @GetMapping
     @Operation(summary = "get user paging information")
     public Page<UserVo> getUserInfo(@RequestParam(required = false) String name, @ParameterObject @PageableDefault(size = 20, sort = "name") Pageable pageable) {
-        Page<User> userPage = userService.findByNameContaining(name, pageable);
+        Page<User> userPage;
+        if (name != null) {
+            userPage = userRepository.findByNameContaining(name, pageable);
+        } else {
+            userPage = userRepository.findAll(pageable);
+        }
         return userMapper.toUserVoPage(userPage.getContent(), pageable, userPage.getTotalElements());
     }
 
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable Long id) {
-        userService.deleteById(id);
+        userRepository.deleteById(id);
     }
 
     @PutMapping
     public void save(@RequestBody @Valid UserUpdateRequest userCreateRequest) {
         User user = userMapper.toUser(userCreateRequest);
-        if (StringUtils.isNotBlank(user.getPassword())) {
+        if (StringUtils.isBlank(user.getPassword())) {
+            Long userId = user.getId();
+            User sourceUser = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("userId " + userId + " is not exit"));
+            user.setPassword(sourceUser.getPassword());
+        } else {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
-        userService.update(user);
+        userRepository.save(user);
     }
 }
