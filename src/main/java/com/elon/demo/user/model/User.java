@@ -26,6 +26,7 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "role")
     private String role;
 
     public User(User user) {

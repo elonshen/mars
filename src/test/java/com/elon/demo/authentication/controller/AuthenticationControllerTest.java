@@ -33,7 +33,7 @@ class AuthenticationControllerTest {
     private UserRepository userRepository;
 
     String token;
-    Gson gson = new Gson();
+    final Gson gson = new Gson();
 
     @BeforeEach
     void setUp() throws Exception {
@@ -63,15 +63,15 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    void testAccessResouceWithToken() throws Exception {
-        this.mockMvc.perform(get("/authentication/hello")
+    void testAccessResourceWithToken() throws Exception {
+        this.mockMvc.perform(get("/users/current")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void testAccessResouceWithOutToken() throws Exception {
-        this.mockMvc.perform(get("/authentication/hello"))
+    void testAccessResourceWithOutToken() throws Exception {
+        this.mockMvc.perform(get("/users/current"))
                 .andExpect(status().isForbidden());
     }
 }
