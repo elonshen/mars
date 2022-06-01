@@ -4,6 +4,7 @@ import com.elon.demo.authentication.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,7 +46,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/authentication",
                         "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**",
                         "/**/*.html", "/**/*.js", "/**/*.css", "/**/*.ico", "/**/*.woff", "/**/*.ttf").permitAll()
-                .antMatchers("/users**").access("hasAuthority('admin')") // Spring security added prefix "ROLE_" to all roles name? https://stackoverflow.com/questions/33205236/spring-security-added-prefix-role-to-all-roles-name
+                .antMatchers("/users").access("hasAuthority('admin')") // Spring security added prefix "ROLE_" to all roles name? https://stackoverflow.com/questions/33205236/spring-security-added-prefix-role-to-all-roles-name
+                .antMatchers(HttpMethod.DELETE, "/users/*").access("hasAuthority('admin')")
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
