@@ -5,7 +5,6 @@ import com.elon.demo.user.model.User;
 import com.elon.demo.user.model.UserCreateRequest;
 import com.elon.demo.user.model.UserUpdateRequest;
 import com.elon.demo.user.model.UserVo;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.springdoc.api.annotations.ParameterObject;
@@ -45,15 +44,22 @@ public class UserController {
         userRepository.save(user);
     }
 
+    /**
+     * get current login user information
+     */
     @GetMapping("/current")
-    @Operation(summary = "get the current login user information")
     public UserVo getUserInfo() {
         MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userMapper.toUserVo(userDetails);
     }
 
+    /**
+     * get user paging information
+     *
+     * @param startCreateTime A date-time without a time-zone in the ISO-8601 calendar system, such as 2007-12-03T10:15:30
+     * @param endCreateTime   A date-time without a time-zone in the ISO-8601 calendar system, such as 2007-12-03T10:15:30
+     */
     @GetMapping()
-    @Operation(summary = "get user paging information")
     public Page<UserVo> getUserInfo(@RequestParam(required = false) String name,
                                     @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startCreateTime,
                                     @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endCreateTime,

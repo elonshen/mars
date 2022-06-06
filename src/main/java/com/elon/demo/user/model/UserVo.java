@@ -1,6 +1,7 @@
 package com.elon.demo.user.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
@@ -8,8 +9,11 @@ public class UserVo {
     private Long id;
     private String name;
     private String username;
+    /**
+     * admin
+     */
     private String role;
-
+    @Schema(description = "A date-time without a time-zone in the ISO-8601 calendar system, such as 2007-12-03T10:15:30")
     private LocalDateTime createTime;
 
     public Long getId() {
@@ -44,7 +48,7 @@ public class UserVo {
         this.role = role;
     }
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     public LocalDateTime getCreateTime() {
         return createTime;
     }

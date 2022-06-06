@@ -10,6 +10,9 @@ public class UserCreateRequest {
     private String username;
     @NotBlank
     private String password;
+    /**
+     * admin
+     */
     private String role;
 
     public String getName() {

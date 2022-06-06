@@ -12,6 +12,9 @@ public class UserUpdateRequest {
     @NotBlank
     private String username;
     private String password;
+    /**
+     * admin
+     */
     private String role;
 
     public String getId() {
