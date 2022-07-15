@@ -3,6 +3,7 @@ package com.elon.demo.authentication;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,12 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private final String SECRET_KEY = "jwtSecret";
+
+    private final long tokenExpirationValue;
+
+    public JwtUtil(@Value("${my.tokenExpirationValue}") long tokenExpirationValue) {
+        this.tokenExpirationValue = tokenExpirationValue;
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -45,7 +52,7 @@ public class JwtUtil {
     private String createToken(Map<String, Object> claims, String subject) {
 
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 15))
+                .setExpiration(new Date(System.currentTimeMillis() + tokenExpirationValue))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 

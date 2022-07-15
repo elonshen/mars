@@ -11,7 +11,7 @@ public class UserCreateRequest {
     @NotBlank
     private String password;
     /**
-     * admin
+     * ROLE_ADMIN
      */
     private String role;
 

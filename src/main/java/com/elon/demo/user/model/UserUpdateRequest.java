@@ -13,7 +13,7 @@ public class UserUpdateRequest {
     private String username;
     private String password;
     /**
-     * admin
+     * ROLE_ADMIN
      */
     private String role;
 

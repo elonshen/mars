@@ -1,6 +1,8 @@
 package com.elon.demo.authentication;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,16 +15,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final MyUserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
+    private final ObjectMapper mapper;
 
-    public JwtRequestFilter(MyUserDetailsService userDetailsService, JwtUtil jwtUtil) {
+    public JwtRequestFilter(MyUserDetailsService userDetailsService, JwtUtil jwtUtil, ObjectMapper mapper) {
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
+        this.mapper = mapper;
     }
 
     @Override
@@ -38,8 +44,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtil.extractUsername(jwt);
             } catch (ExpiredJwtException e) {
-                response.setHeader("expires", "ExpiredJwt");
-                throw e;
+                Map<String, Object> errorDetails = new HashMap<>();
+                errorDetails.put("message", "认证过期");
+                response.setStatus(401);
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                mapper.writeValue(response.getWriter(), errorDetails);
+                return;
+            } catch (Exception e) {
+                Map<String, Object> errorDetails = new HashMap<>();
+                errorDetails.put("message", "认证失败");
+                response.setStatus(401);
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                mapper.writeValue(response.getWriter(), errorDetails);
+                return;
             }
         }
 

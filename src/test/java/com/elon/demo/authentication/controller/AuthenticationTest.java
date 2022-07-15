@@ -21,19 +21,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {"my.tokenExpirationValue=3000"})
 public class AuthenticationTest {
     @Autowired
     TestRestTemplate restTemplate;
     @MockBean
     private UserRepository userRepository;
-
     private String mockAdminAndGetToken() {
         User user = new User();
         user.setUsername("admin");
         user.setPassword("$2a$10$65uyWEzR6GE9L7vz2O466.IXQA3C9WNNxMpunQhdUlknkgF8Jtxq2");
         user.setName("foo");
-        user.setRole("admin");
+        user.setRole("ROLE_ADMIN");
         given(this.userRepository.findByUsername("admin")).willReturn(Optional.of(user));
 
         HttpEntity<AuthenticationRequest> request = new HttpEntity<>(new AuthenticationRequest("admin", "admin"));
@@ -41,12 +40,16 @@ public class AuthenticationTest {
         return responseEntity.getBody();
     }
 
-    private String mockCommonUserAndGetToken() {
+    private void mockCommonUser() {
         User user = new User();
         user.setUsername("user");
         user.setPassword("$2a$10$ktiha.elFVEC43oGdfr5vOVCbrUfRcYra0OH25LW3vGxNmxDdtOk2");
         user.setName("user");
         given(this.userRepository.findByUsername("user")).willReturn(Optional.of(user));
+    }
+
+    private String mockCommonUserAndGetToken() {
+        mockCommonUser();
 
         HttpEntity<AuthenticationRequest> request = new HttpEntity<>(new AuthenticationRequest("user", "user"));
         ResponseEntity<String> responseEntity = restTemplate.postForEntity("/authentication", request, String.class);
@@ -58,7 +61,16 @@ public class AuthenticationTest {
         given(this.userRepository.findAll(ArgumentMatchers.<Specification<User>>any(), (Pageable) any())).willReturn(new PageImpl<>(new ArrayList<>()));
 
         ResponseEntity<String> responseEntity = restTemplate.getForEntity("/users", String.class);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN); //无token也是一种权限，访问认证资源应当返回403
+    }
+
+    @Test
+    void accessGetCurrentUserApiByErrorToken() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + "error-code");
+        HttpEntity<AuthenticationRequest> request = new HttpEntity<>(headers);
+        ResponseEntity<String> responseEntity = restTemplate.exchange("/users/current", HttpMethod.GET, request, String.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Test
@@ -69,6 +81,32 @@ public class AuthenticationTest {
     @Test
     void loginAdminUser() {
         assertThat(mockAdminAndGetToken()).isNotBlank();
+    }
+
+    @Test
+    void loginByErrorUsername() {
+        mockCommonUser();
+        HttpEntity<AuthenticationRequest> request = new HttpEntity<>(new AuthenticationRequest("user2", "user"));
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity("/authentication", request, String.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Test
+    void loginByErrorPassword() {
+        mockCommonUser();
+        HttpEntity<AuthenticationRequest> request = new HttpEntity<>(new AuthenticationRequest("user", "user2"));
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity("/authentication", request, String.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Test
+    void accessGetCurrentUserApiByExpiredToken() throws InterruptedException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + mockCommonUserAndGetToken());
+        Thread.sleep(3100);
+        HttpEntity<AuthenticationRequest> request = new HttpEntity<>(headers);
+        ResponseEntity<String> responseEntity = restTemplate.exchange("/users/current", HttpMethod.GET, request, String.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Test

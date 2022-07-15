@@ -10,7 +10,7 @@ public class UserVo {
     private String name;
     private String username;
     /**
-     * admin
+     * ROLE_ADMIN
      */
     private String role;
     @Schema(description = "A date-time without a time-zone in the ISO-8601 calendar system, such as 2007-12-03T10:15:30")
