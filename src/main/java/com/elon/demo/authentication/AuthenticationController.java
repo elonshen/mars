@@ -32,6 +32,7 @@ public class AuthenticationController {
         this.userDetailsService = userDetailsService;
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     @PostMapping
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(examples = @ExampleObject(value = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYzNTc3NjQ2NywiaWF0IjoxNjM0NDgwNDY3fQ.FG1jp0mQodtslGfSHShrgo2DOkKQcj_pCvLRe5Q5t3w"))}),

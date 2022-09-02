@@ -48,6 +48,7 @@ public class UserVo {
         this.role = role;
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     public LocalDateTime getCreateTime() {
         return createTime;
