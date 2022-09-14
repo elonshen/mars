@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>接口说明</title>
+</head>
+<body>
+<h1>接口说明</h1>
+<h2>认证授权说明</h2>
+<p>
+    身份认证方式采用token认证。客户端通过认证接口（/authentication）获取token。客户端在请求其他接口时，需要在请求头上带上token（Authorization: Bearer &lt;token&gt;）
+</p>
+<h2>统一异常处理</h2>
+<p>
+    http-status=200表示请求成功，其他表示失败。成功时Response为业务数据，失败时Response格式统一为：{ "message": "密码错误" }
+</p>
+<h2>常见错误码及原因</h2>
+<ul>
+    <li>401:认证失败。例如：错误的token、过期的token</li>
+    <li>403:授权失败。例如：用户访问没有权限的资源</li>
+    <li>500:服务端异常。例如：业务异常、程序异常</li>
+    <li>其他错误码见具体接口说明</li>
+</ul>
+</body>
+</html>

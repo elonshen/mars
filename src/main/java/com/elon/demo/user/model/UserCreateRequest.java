@@ -4,14 +4,23 @@ import javax.validation.constraints.NotBlank;
 
 
 public class UserCreateRequest {
+    /**
+     * 名称
+     */
     @NotBlank
     private String name;
+    /**
+     * 用户名
+     */
     @NotBlank
     private String username;
+    /**
+     * 密码
+     */
     @NotBlank
     private String password;
     /**
-     * ROLE_ADMIN
+     * 角色
      */
     private String role;
 

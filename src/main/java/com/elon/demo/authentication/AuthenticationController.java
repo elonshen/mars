@@ -19,7 +19,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/authentication")
-@Tag(name = "authentication")
+@Tag(name = "认证")
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
@@ -31,7 +31,10 @@ public class AuthenticationController {
         this.jwtTokenUtil = jwtTokenUtil;
         this.userDetailsService = userDetailsService;
     }
-
+    /**
+     * 用户登入
+     * @return token
+     */
     @SuppressWarnings("SpellCheckingInspection")
     @PostMapping
     @ApiResponses(value = {

@@ -6,7 +6,6 @@ import com.elon.demo.user.model.UserCreateRequest;
 import com.elon.demo.user.model.UserUpdateRequest;
 import com.elon.demo.user.model.UserVo;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.StringUtils;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users")
-@Tag(name = "user")
+@Tag(name = "用户管理")
 public class UserController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -36,16 +35,22 @@ public class UserController {
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
     }
-
+    /**
+     * 新增用户
+     */
     @PostMapping
-    public void save(@RequestBody @Valid UserCreateRequest userCreateRequest) {
+    public void create(@RequestBody @Valid UserCreateRequest userCreateRequest) {
+        if (userRepository.findByUsername(userCreateRequest.getUsername()).isPresent()){
+            throw new RuntimeException("用户名已存在");
+        }
+
         User user = userMapper.toUser(userCreateRequest);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
     /**
-     * get current login user information
+     * 获取当前登陆的用户信息
      */
     @GetMapping("/current")
     public UserVo getUserInfo() {
@@ -54,7 +59,7 @@ public class UserController {
     }
 
     /**
-     * get user paging information
+     * 获取用户列表分页信息
      *
      * @param startCreateTime A date-time without a time-zone in the ISO-8601 calendar system, such as 2007-12-03T10:15:30
      * @param endCreateTime   A date-time without a time-zone in the ISO-8601 calendar system, such as 2007-12-03T10:15:30
@@ -83,22 +88,39 @@ public class UserController {
         Page<User> userPage = userRepository.findAll(specification, pageable);
         return userMapper.toUserVoPage(userPage.getContent(), pageable, userPage.getTotalElements());
     }
-
+    /**
+     * 删除用户
+     * @param id 用户ID
+     */
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable Long id) {
         userRepository.deleteById(id);
     }
-
-    @PutMapping
-    public void save(@RequestBody @Valid UserUpdateRequest userUpdateRequest) {
-        User user = userMapper.toUser(userUpdateRequest);
-        if (StringUtils.isBlank(user.getPassword())) {
-            Long userId = user.getId();
-            User sourceUser = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("userId " + userId + " is not exit"));
-            user.setPassword(sourceUser.getPassword());
-        } else {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+    /**
+     * 更新用户信息
+     *
+     * @param id 用户ID
+     * @param userUpdateRequest 用户信息
+     */
+    @PutMapping("/{id}/info")
+    public void updateUserInfo(@PathVariable Long id, @RequestBody @Valid UserUpdateRequest userUpdateRequest) {
+        if (userRepository.existsByUsernameAndIdNot(userUpdateRequest.getUsername(),id)){
+            throw new RuntimeException("用户名已存在");
         }
-        userRepository.save(user);
+        User targetUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("用户ID不存在"));
+        userMapper.updatePerson(userUpdateRequest, targetUser);
+        userRepository.save(targetUser);
+    }
+    /**
+     * 更新用户密码
+     *
+     * @param id 用户ID
+     * @param password 密码
+     */
+    @PutMapping("/{id}/password")
+    public void updateUserPassword(@PathVariable Long id, @RequestBody String password) {
+        User targetUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("用户ID不存在"));
+        targetUser.setPassword(passwordEncoder.encode(password));
+        userRepository.save(targetUser);
     }
 }

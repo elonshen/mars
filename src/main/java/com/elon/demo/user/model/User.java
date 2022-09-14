@@ -14,16 +14,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-
+    /**
+     * 名称
+     */
     @Column(name = "name")
     private String name;
-
+    /**
+     * 用户名
+     */
     @Column(name = "username", unique = true)
     private String username;
 
     @Column(name = "password")
     private String password;
-
+    /**
+     * 角色
+     */
     @Column(name = "role")
     private String role;
 
