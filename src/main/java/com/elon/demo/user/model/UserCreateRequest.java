@@ -1,6 +1,9 @@
 package com.elon.demo.user.model;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 
 public class UserCreateRequest {
@@ -22,8 +25,7 @@ public class UserCreateRequest {
     /**
      * 角色
      */
-    private String role;
-
+    private Set<Role> roles = new LinkedHashSet<>();
     public String getName() {
         return name;
     }
@@ -48,11 +50,11 @@ public class UserCreateRequest {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

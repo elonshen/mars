@@ -6,20 +6,74 @@
 </head>
 <body>
 <h1>接口说明</h1>
-<h2>认证授权说明</h2>
+<h2>更新记录</h2>
+<ul>
+    <li>12.14-新增<span class="tag">用户管理功能的接口</span></li>
+</ul>
+
+<h2>统一说明</h2>
+<h3>认证</h3>
 <p>
-    身份认证方式采用token认证。客户端通过认证接口（/authentication）获取token。客户端在请求其他接口时，需要在请求头上带上token（Authorization: Bearer &lt;token&gt;）
+    身份认证方式采用JWT认证方式。首先客户端通过登入接口<span class="tag">/authentication</span>获取token，然后客户端在请求其他接口时，在请求头上带上token（Authorization:
+    Bearer &lt;token&gt;），以下是认证示例。
 </p>
-<h2>统一异常处理</h2>
 <p>
-    http-status=200表示请求成功，其他表示失败。成功时Response为业务数据，失败时Response格式统一为：{ "message": "密码错误" }
+    调用登入接口获取token：
+    <span class="code">
+        curl -XPOST user:password@localhost:8080/authentication
+    </span>
+    然后会返回一个token，类似于这样：
+    <span class="code">
+        eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTYwNDA0MzA1MSwiaWF0IjoxNjA0MDA3MDUxfQ.yDF_JgSwl5sk21CF7AE1AYbYzRd5YYqe3MIgSWpgN0t2UqsjaaEDhmmICKizt-_0iZy8nkEpNnvgqv5bOHDhs7AXlYS1pg8dgPKuyfkhyVIKa3DhuGyb7tFjwJxHpr128BXf1Dbq-p7Njy46tbKsZhP5zGTjdXlqlAhR4Bl5Fxaxr7D0gdTVBVTlUp9DCy6l-pTBpsvHxShkjXJ0GHVpIZdB-c2e_K9PfTW5MDPcHekG9djnWPSEy-fRvKzTsyVFhdy-X3NXQWWkjFv9bNarV-bhxMlzqhujuaeXJGEqUZlkhBxTsqFr1N7XVcmhs3ECdjEyun2fUSge4BoC7budsQ
+    </span>
+    最后请求<span class="tag">/</span>接口,并带上token
+    <span class="code">
+        curl -H "Authorization: Bearer $token" localhost:8080
+    </span>
+    将会返回类似以下内容
+    <span class="code">
+        Hello, user!
+    </span>
 </p>
-<h2>常见错误码及原因</h2>
+<h3>授权</h3>
+<p>
+    接口权限共有三种，分别是：管理员权限、认证用户权限、无权限要求。认证通过的用户拥有认证权限，角色字段为<span class="tag">ADMIN</span>的用户拥有管理员权限。
+</p>
+<p>
+    需要管理员权限的接口有：新增用户；更新用户信息；删除用户，不需要权限的接口有：认证接口，其他接口都需要认证权限
+</p>
+
+<h3>错误响应</h3>
+<p>
+    HTTP-status=2xx表示请求成功，其他表示失败。成功时Response为业务数据，失败时Response格式统一为：
+    <span class="code">
+        {<br>
+            &emsp;"message": "密码错误"<br>
+        }
+    </span>
+</p>
+
+<h3>常见状态码及原因</h3>
 <ul>
     <li>401:认证失败。例如：错误的token、过期的token</li>
     <li>403:授权失败。例如：用户访问没有权限的资源</li>
     <li>500:服务端异常。例如：业务异常、程序异常</li>
-    <li>其他错误码见具体接口说明</li>
+    <li>其他错误码见具体接口说明和<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status">标准规范</a></li>
 </ul>
 </body>
+<style>
+    .code {
+        background-color: #f6f6f6;
+        padding: 12px;
+        display: block;
+        border-radius: 3px;
+        margin: 15px 0 20px 0;
+    }
+
+    .tag {
+        padding: 1px 5px;
+        background-color: #e3e6e8;
+        border-radius: 3px;
+    }
+</style>
 </html>

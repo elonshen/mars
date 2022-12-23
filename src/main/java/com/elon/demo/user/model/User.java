@@ -1,10 +1,12 @@
 package com.elon.demo.user.model;
 
+import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Table(name = "user")
 @Entity
@@ -27,26 +29,44 @@ public class User {
 
     @Column(name = "password")
     private String password;
+
+    @CreatedDate
+    @Column(name = "created_time")
+    private LocalDateTime createdTime;
     /**
      * 角色
      */
+    @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "role")
-    private String role;
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "owner_id"))
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles = new LinkedHashSet<>();
 
-    @CreatedDate
-    @Column(name = "create_time")
-    private LocalDateTime createTime;
-
+    @SuppressWarnings("unused")
     public User(User user) {
         this.id = user.id;
         this.name = user.name;
         this.username = user.username;
         this.password = user.password;
-        this.role = user.role;
-        this.createTime = user.createTime;
+        this.roles = user.roles;
+        this.createdTime = user.createdTime;
+    }
+
+    public User(String username, String password, Set<Role> roles) {
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
     }
 
     public User() {
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     public Long getId() {
@@ -81,19 +101,11 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+    public LocalDateTime getCreatedTime() {
+        return createdTime;
     }
 
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
+    public void setCreatedTime(LocalDateTime createTime) {
+        this.createdTime = createTime;
     }
 }

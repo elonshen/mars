@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class UserVo {
     private Long id;
@@ -18,9 +20,12 @@ public class UserVo {
     /**
      * 角色
      */
-    private String role;
-    @Schema(description = "A date-time without a time-zone in the ISO-8601 calendar system, such as 2007-12-03T10:15:30")
-    private LocalDateTime createTime;
+    private Set<Role> roles = new LinkedHashSet<>();
+    @Schema(description = "创建时间,ISO-8601标准表示，不带时区，例如：2007-12-03T10:15:30")
+    private LocalDateTime createdTime;
+
+    public UserVo() {
+    }
 
     public Long getId() {
         return id;
@@ -46,21 +51,20 @@ public class UserVo {
         this.username = username;
     }
 
-    public String getRole() {
-        return role;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
-    @SuppressWarnings("SpellCheckingInspection")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    public LocalDateTime getCreateTime() {
-        return createTime;
+    public LocalDateTime getCreatedTime() {
+        return createdTime;
     }
 
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
+    public void setCreatedTime(LocalDateTime createdTime) {
+        this.createdTime = createdTime;
     }
 }

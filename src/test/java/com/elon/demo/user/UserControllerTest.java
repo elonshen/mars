@@ -1,6 +1,6 @@
 package com.elon.demo.user;
 
-import com.elon.demo.authentication.model.AuthenticationRequest;
+import com.elon.demo.user.model.Role;
 import com.elon.demo.user.model.User;
 import com.elon.demo.user.model.UserCreateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,9 +13,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest
@@ -36,11 +38,12 @@ class UserControllerTest {
         userCreateRequest.setUsername("foo");
         userCreateRequest.setName("foo");
         userCreateRequest.setPassword("foo");
+        System.out.println(token);
         assertThatThrownBy(() ->
                 this.mockMvc.perform(post("/users")
-                .header("Authorization", "Bearer " + token)
-                .content(objectMapper.writeValueAsString(userCreateRequest))
-                .contentType(MediaType.APPLICATION_JSON))
+                        .with(httpBasic("foo", "foo"))
+                        .content(objectMapper.writeValueAsString(userCreateRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
         ).hasMessageContaining("用户名已存在");
     }
 
@@ -49,11 +52,11 @@ class UserControllerTest {
         user.setUsername("foo");
         user.setPassword("$2a$10$1vMoRhQlmFBosVZQvta28OqXeOl1ybZU0W4L7tuOWpYAZQy4jzRR2");
         user.setName("foo");
-        user.setRole("ROLE_ADMIN");
+        user.setRoles(Set.of(Role.ADMIN));
         given(this.userRepository.findByUsername("foo")).willReturn(Optional.of(user));
+
         return this.mockMvc.perform(post("/authentication")
-                        .header("Content-Type", "application/json")
-                        .content(objectMapper.writeValueAsString(new AuthenticationRequest("foo", "foo"))))
+                        .with(httpBasic("foo", "foo")))
                 .andReturn().getResponse().getContentAsString();
     }
 }

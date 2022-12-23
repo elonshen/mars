@@ -1,23 +1,23 @@
 package com.elon.demo.user;
 
-import com.elon.demo.authentication.model.MyUserDetails;
 import com.elon.demo.user.model.User;
 import com.elon.demo.user.model.UserCreateRequest;
 import com.elon.demo.user.model.UserUpdateRequest;
 import com.elon.demo.user.model.UserVo;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springdoc.api.annotations.ParameterObject;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.Predicate;
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +54,8 @@ public class UserController {
      */
     @GetMapping("/current")
     public UserVo getUserInfo() {
-        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userMapper.toUserVo(userDetails);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return userMapper.toUserVo(userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException("该用户不存在")));
     }
 
     /**

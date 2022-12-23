@@ -14,11 +14,13 @@ public class OpenApi30Config {
 
     @Bean
     public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "bearerAuth";
+        final String bearerAuth = "bearerToken";
+        final String basicAuth = "bearerAuth";
+
         return new OpenAPI()
-                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
-                .components(new Components().addSecuritySchemes(securitySchemeName,
-                        new SecurityScheme().name(securitySchemeName).type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")))
+                .addSecurityItem(new SecurityRequirement().addList(bearerAuth).addList(basicAuth))
+                .components(new Components().addSecuritySchemes(bearerAuth, new SecurityScheme().name(bearerAuth).type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"))
+                        .addSecuritySchemes(basicAuth, new SecurityScheme().name(basicAuth).type(SecurityScheme.Type.HTTP).scheme("basic")))
                 .info(new Info().title("接口文档"))
                 .externalDocs(new ExternalDocumentation().url("/ApiDoc.html").description("接口说明"));
     }

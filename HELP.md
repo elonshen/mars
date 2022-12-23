@@ -1,5 +1,10 @@
 # Getting Started
 
+### Reference Demo
+
+* [springdoc-openapi](https://github.com/springdoc/springdoc-openapi.git)
+* [spring-security-samples](https://github.com/spring-projects/spring-security-samples.git)
+
 ### Reference Documentation
 
 For further reference, please consider the following sections:
@@ -25,24 +30,14 @@ The following guides illustrate how to use some features concretely:
 * [Authenticating a User with LDAP](https://spring.io/guides/gs/authenticating-ldap/)
 * [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
 * [Accessing data with MySQL](https://spring.io/guides/gs/accessing-data-mysql/)
-
-OpenApi3.0 and MapStruct
-
 * [Quick Guide to MapStruct](https://www.baeldung.com/mapstruct)
 * [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)
 * [SpringDoc: How do I add authorization header in requests?](https://springdoc.org/#how-do-i-add-authorization-header-in-requests)
-
-Bearer Token Authentication
-
-* [Spring Boot Security + JWT Hello World Example](https://www.javainuse.com/spring/boot-jwt)
 * [Spring Security: without the WebSecurityConfigurerAdapter](https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter)
 * [A Custom AuthenticationManager](https://stackoverflow.com/questions/71281032/spring-security-exposing-authenticationmanager-without-websecurityconfigureradap)
 * [Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring)
 * [CORS with Spring](https://www.baeldung.com/spring-cors)
 * [Spring boot enable Global CORS support issue: only GET is working, POST, PUT and Delete are not working](https://stackoverflow.com/questions/35315090/spring-boot-enable-global-cors-support-issue-only-get-is-working-post-put-and)
-
-Other
-
 * [Mocking and Spying Beans](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing.spring-boot-applications.mocking-beans)
 * [How to run a shell script at startup](https://stackoverflow.com/questions/12973777/how-to-run-a-shell-script-at-startup?rq=1)
 * [Configuration Metadata](https://docs.spring.io/spring-boot/docs/2.6.3/reference/html/configuration-metadata.html#configuration-metadata.annotation-processor--)
