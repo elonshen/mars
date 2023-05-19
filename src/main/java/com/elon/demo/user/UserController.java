@@ -35,6 +35,7 @@ public class UserController {
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
     }
+
     /**
      * 新增用户
      */
@@ -52,7 +53,7 @@ public class UserController {
     /**
      * 获取当前登陆的用户信息
      */
-    @GetMapping("/current")
+    @GetMapping("/me")
     public UserVo getUserInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return userMapper.toUserVo(userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException("该用户不存在")));
@@ -88,6 +89,7 @@ public class UserController {
         Page<User> userPage = userRepository.findAll(specification, pageable);
         return userMapper.toUserVoPage(userPage.getContent(), pageable, userPage.getTotalElements());
     }
+
     /**
      * 删除用户
      * @param id 用户ID
@@ -96,13 +98,14 @@ public class UserController {
     public void deleteById(@PathVariable Long id) {
         userRepository.deleteById(id);
     }
+
     /**
      * 更新用户信息
      *
      * @param id 用户ID
      * @param userUpdateRequest 用户信息
      */
-    @PutMapping("/{id}/info")
+    @PutMapping("/{id}")
     public void updateUserInfo(@PathVariable Long id, @RequestBody @Valid UserUpdateRequest userUpdateRequest) {
         if (userRepository.existsByUsernameAndIdNot(userUpdateRequest.getUsername(),id)){
             throw new RuntimeException("用户名已存在");

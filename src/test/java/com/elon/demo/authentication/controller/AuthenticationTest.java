@@ -36,7 +36,7 @@ public class AuthenticationTest {
 
     @BeforeEach
     void setUp() {
-        given(userRepository.findByUsername(any())).willReturn(Optional.of(new User("foo", "$2a$10$1vMoRhQlmFBosVZQvta28OqXeOl1ybZU0W4L7tuOWpYAZQy4jzRR2", Set.of(Role.ADMIN))));
+        given(userRepository.findByUsername(any())).willReturn(Optional.of(User.ofNew("foo", "foo", "foo", Set.of(Role.ADMIN))));
     }
 
     @Test

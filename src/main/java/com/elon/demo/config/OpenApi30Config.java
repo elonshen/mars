@@ -15,7 +15,7 @@ public class OpenApi30Config {
     @Bean
     public OpenAPI customOpenAPI() {
         final String bearerAuth = "bearerToken";
-        final String basicAuth = "bearerAuth";
+        final String basicAuth = "basicScheme";
 
         return new OpenAPI()
                 .addSecurityItem(new SecurityRequirement().addList(bearerAuth).addList(basicAuth))

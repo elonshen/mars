@@ -3,6 +3,7 @@ package com.elon.demo.user.model;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -52,10 +53,17 @@ public class User {
         this.createdTime = user.createdTime;
     }
 
-    public User(String username, String password, Set<Role> roles) {
+    private User(Long id, String name, String username, String password, LocalDateTime createdTime, Set<Role> roles) {
+        this.id = id;
+        this.name = name;
         this.username = username;
         this.password = password;
+        this.createdTime = createdTime;
         this.roles = roles;
+    }
+
+    public static User ofNew(String name, String username, String password, Set<Role> roles) {
+        return new User(null, name, username, new BCryptPasswordEncoder().encode(password), null, roles);
     }
 
     public Set<Role> getRoles() {
