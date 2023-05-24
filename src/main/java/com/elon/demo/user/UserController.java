@@ -1,9 +1,6 @@
 package com.elon.demo.user;
 
-import com.elon.demo.user.model.User;
-import com.elon.demo.user.model.UserCreateRequest;
-import com.elon.demo.user.model.UserUpdateRequest;
-import com.elon.demo.user.model.UserVo;
+import com.elon.demo.user.model.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
@@ -114,16 +111,17 @@ public class UserController {
         userMapper.updatePerson(userUpdateRequest, targetUser);
         userRepository.save(targetUser);
     }
+
     /**
      * 更新用户密码
      *
-     * @param id 用户ID
-     * @param password 密码
+     * @param id                        用户ID
+     * @param userUpdatePasswordRequest 密码
      */
     @PutMapping("/{id}/password")
-    public void updateUserPassword(@PathVariable Long id, @RequestBody String password) {
+    public void updateUserPassword(@PathVariable Long id, @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest) {
         User targetUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("用户ID不存在"));
-        targetUser.setPassword(passwordEncoder.encode(password));
+        targetUser.setPassword(passwordEncoder.encode(userUpdatePasswordRequest.getPassword()));
         userRepository.save(targetUser);
     }
 }

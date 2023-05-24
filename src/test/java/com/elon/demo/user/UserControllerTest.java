@@ -41,7 +41,7 @@ class UserControllerTest {
         System.out.println(token);
         assertThatThrownBy(() ->
                 this.mockMvc.perform(post("/users")
-                        .with(httpBasic("foo", "foo"))
+                        .header("Authorization", "Bearer " + token)
                         .content(objectMapper.writeValueAsString(userCreateRequest))
                         .contentType(MediaType.APPLICATION_JSON))
         ).hasMessageContaining("用户名已存在");
