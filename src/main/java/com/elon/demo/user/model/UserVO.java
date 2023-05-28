@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class UserVo {
+public class UserVO {
     private Long id;
     /**
      * 名称
@@ -24,7 +24,7 @@ public class UserVo {
     @Schema(description = "创建时间,ISO-8601标准表示，不带时区，例如：2007-12-03T10:15:30")
     private LocalDateTime createdTime;
 
-    public UserVo() {
+    public UserVO() {
     }
 
     public Long getId() {

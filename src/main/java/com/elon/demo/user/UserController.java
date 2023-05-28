@@ -51,7 +51,7 @@ public class UserController {
      * 获取当前登陆的用户信息
      */
     @GetMapping("/me")
-    public UserVo getUserInfo() {
+    public UserVO getUserInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return userMapper.toUserVo(userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException("该用户不存在")));
     }
@@ -63,7 +63,7 @@ public class UserController {
      * @param endCreateTime   A date-time without a time-zone in the ISO-8601 calendar system, such as 2007-12-03T10:15:30
      */
     @GetMapping()
-    public Page<UserVo> getUserInfo(@RequestParam(required = false) String name,
+    public Page<UserVO> getUserInfo(@RequestParam(required = false) String name,
                                     @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startCreateTime,
                                     @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endCreateTime,
                                     @ParameterObject @PageableDefault(size = 20, sort = "name") Pageable pageable) {
