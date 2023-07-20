@@ -113,6 +113,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/authentication",
                                 "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**",
                                 "/*/*.html", "/*/*.js", "/*/*.css", "/*/*.ico", "/*/*.woff", "/*/*.ttf",
+                                "/inspection-item-records/photo-path/*.jpg",
                                 "/ApiDoc.html")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").hasAuthority("SCOPE_" + Role.ADMIN.name())
