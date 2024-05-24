@@ -49,6 +49,7 @@ class UserControllerTest {
 
     private String mockAdminAndGetToken() throws Exception {
         User user = new User();
+        user.setId(1L);
         user.setUsername("foo");
         user.setPassword("$2a$10$1vMoRhQlmFBosVZQvta28OqXeOl1ybZU0W4L7tuOWpYAZQy4jzRR2");
         user.setName("foo");

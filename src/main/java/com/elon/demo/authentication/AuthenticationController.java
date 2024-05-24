@@ -1,5 +1,7 @@
 package com.elon.demo.authentication;
 
+import com.elon.demo.user.UserRepository;
+import com.elon.demo.user.model.User;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -23,9 +26,11 @@ import java.util.stream.Collectors;
 @Hidden
 public class AuthenticationController {
     private final JwtEncoder encoder;
+    private final UserRepository userRepository;
 
-    public AuthenticationController(JwtEncoder encoder) {
+    public AuthenticationController(JwtEncoder encoder, UserRepository userRepository) {
         this.encoder = encoder;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -38,20 +43,24 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", content = {@Content(examples = @ExampleObject(value = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYzNTc3NjQ2NywiaWF0IjoxNjM0NDgwNDY3fQ.FG1jp0mQodtslGfSHShrgo2DOkKQcj_pCvLRe5Q5t3w"))}),
     })
     public String createAuthenticationToken(Authentication authentication) {
+        String username = authentication.getName();
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        User user = userOptional.orElseThrow(() -> new RuntimeException("用户不存在"));
+
         Instant now = Instant.now();
         long expiry = 36000L;
-        // @formatter:off
         String scope = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
+
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiry))
-                .subject(authentication.getName())
+                .subject(username)
                 .claim("scope", scope)
+                .claim("userId", user.getId())
                 .build();
-        // @formatter:on
         return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
