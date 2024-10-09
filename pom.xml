@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.11</version>
+        <version>3.2.10</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.elon</groupId>
@@ -16,7 +16,7 @@
     <properties>
         <java.version>17</java.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-        <springdoc-openapi.version>2.5.0</springdoc-openapi.version>
+        <springdoc-openapi.version>2.6.0</springdoc-openapi.version>
     </properties>
     <dependencies>
         <dependency>
@@ -40,7 +40,6 @@
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-            <version>3.3.3</version> <!-- 根据最新版本号进行更改 -->
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
