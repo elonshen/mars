@@ -2,6 +2,7 @@ package com.elon.mars.controller;
 
 import com.elon.mars.domain.Tenant;
 import com.elon.mars.domain.User;
+import com.elon.mars.repository.TenantRepository;
 import com.elon.mars.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,10 +29,12 @@ import java.util.stream.Collectors;
 public class AuthenticationController {
     private final JwtEncoder encoder;
     private final UserRepository userRepository;
+    private final TenantRepository tenantRepository;
 
-    public AuthenticationController(JwtEncoder encoder, UserRepository userRepository) {
+    public AuthenticationController(JwtEncoder encoder, UserRepository userRepository, TenantRepository tenantRepository) {
         this.encoder = encoder;
         this.userRepository = userRepository;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -44,12 +47,13 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", content = {@Content(examples = @ExampleObject(value = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYzNTc3NjQ2NywiaWF0IjoxNjM0NDgwNDY3fQ.FG1jp0mQodtslGfSHShrgo2DOkKQcj_pCvLRe5Q5t3w"))}),
     })
     public String createAuthenticationToken(Authentication authentication) {
+
         String username = authentication.getName();
-
-        Optional<User> userOptional = userRepository.findFirstByAuth_Username(username);
-
+        Optional<User> userOptional = userRepository.findFirstByAuth_Username(username); //默认登录第一个租户
         User user = userOptional.orElseThrow(() -> new RuntimeException("用户不存在"));
-        Tenant tenant = user.getTenant();
+
+        Long tenantId = user.getTenantId();
+        Tenant tenant = tenantRepository.findById(tenantId).orElseThrow(() -> new RuntimeException("租户不存在"));
 
         Instant now = Instant.now();
         long expiry = 36000L;
@@ -64,7 +68,8 @@ public class AuthenticationController {
                 .subject(username)
                 .claim("scope", scope)
                 .claim("userId", user.getId())
-                .claim("tenantId", tenant.getId())
+                .claim("tenantId", tenantId)
+                .claim("tenantType", tenant.getTenantType().name())
                 .build();
         return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }

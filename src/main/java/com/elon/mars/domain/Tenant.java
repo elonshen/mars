@@ -1,12 +1,15 @@
 package com.elon.mars.domain;
 
+import com.elon.mars.config.SnowflakeGenerator;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "tenant")
 public class Tenant {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "snowflake")
+    @GenericGenerator(name = "snowflake", type = SnowflakeGenerator.class)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -16,14 +19,27 @@ public class Tenant {
     @Column(name = "description")
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tenant_type", nullable = false)
+    private TenantType tenantType;
+
     /**
      * 静态构造方法
      */
-    public static Tenant of(String name, String description) {
+    public static Tenant of(String name, String description, TenantType tenantType) {
         Tenant tenant = new Tenant();
         tenant.setName(name);
         tenant.setDescription(description);
+        tenant.setTenantType(tenantType);
         return tenant;
+    }
+
+    public TenantType getTenantType() {
+        return tenantType;
+    }
+
+    public void setTenantType(TenantType tenantType) {
+        this.tenantType = tenantType;
     }
 
     public String getDescription() {

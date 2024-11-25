@@ -1,12 +1,15 @@
 package com.elon.mars.domain;
 
+import com.elon.mars.config.SnowflakeGenerator;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "auth")
 public class Auth {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "snowflake")
+    @GenericGenerator(name = "snowflake", type = SnowflakeGenerator.class)
     @Column(name = "id", nullable = false)
     private Long id;
 

@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.elon</groupId>
     <artifactId>mars</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1</version>
     <name>mars</name>
     <description>Mars project for Spring Boot</description>
     <properties>
@@ -55,7 +55,14 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc-openapi.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.webjars</groupId>
+                    <artifactId>swagger-ui</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-common</artifactId>

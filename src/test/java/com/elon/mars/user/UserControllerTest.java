@@ -2,6 +2,7 @@ package com.elon.mars.user;
 
 import com.elon.mars.controller.dto.UserCreateRequest;
 import com.elon.mars.domain.*;
+import com.elon.mars.repository.TenantRepository;
 import com.elon.mars.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,14 +32,16 @@ class UserControllerTest {
     private UserRepository userRepository;
     @Autowired
     private ObjectMapper objectMapper;
+    @MockBean
+    private TenantRepository tenantRepository;
 
+    /**
+     * 测试普通租户
+     */
     @Test
     void testCreateUserByRepeatUserName() throws Exception {
         String token = mockAdminAndGetToken();
-        UserCreateRequest userCreateRequest = new UserCreateRequest();
-        userCreateRequest.setUsername("foo");
-        userCreateRequest.setName("foo");
-        userCreateRequest.setPassword("foo");
+        UserCreateRequest userCreateRequest = new UserCreateRequest("foo", "foo", "foo", null, new HashSet<>());
         System.out.println(token);
         assertThatThrownBy(() ->
                 this.mockMvc.perform(post("/users")
@@ -48,12 +52,22 @@ class UserControllerTest {
     }
 
     private String mockAdminAndGetToken() throws Exception {
-        Tenant tenant = Tenant.of("平台租户", null);
-        Permission permission = Permission.of("用户管理", PermissionEnum.USER_MANAGE.name(), tenant);
-        Role role = Role.of("admin", Set.of(permission), tenant);
-        User user = User.ofNew("foo", "foo", "foo", Set.of(role));
-        user.setId(1L);
+        Tenant tenant = Tenant.of("普通租户", null, TenantType.NORMAL);
+        tenant.setId(2L);
+
+        Permission permission = Permission.of("用户管理", PermissionEnum.USER_MANAGE.name());
+        permission.setTenantId(tenant.getId());
+
+        Role role = Role.of("admin", Set.of(permission), tenant.getId());
+        role.setTenantId(tenant.getId());
+
+        User user = User.ofNew("foo", "foo", "foo", Set.of(role), new HashSet<>());
+        user.setId(2L);
+        user.setTenantId(tenant.getId());
+
         given(this.userRepository.findFirstByAuth_Username("foo")).willReturn(Optional.of(user));
+        given(this.userRepository.findByAuth_Username("foo")).willReturn(Optional.of(user));
+        given(this.tenantRepository.findById(tenant.getId())).willReturn(Optional.of(tenant));
 
         return this.mockMvc.perform(post("/authentication")
                         .with(httpBasic("foo", "foo")))

@@ -1,6 +1,9 @@
 package com.elon.mars.domain;
 
+import com.elon.mars.config.SnowflakeGenerator;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.TenantId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,12 +12,13 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Table(name = "user")
+@Table(name = "`user`")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "snowflake")
+    @GenericGenerator(name = "snowflake", type = SnowflakeGenerator.class)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -41,11 +45,17 @@ public class User {
     @JoinColumn(name = "auth_id", nullable = false)
     private Auth auth;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", nullable = true)
-    private Tenant tenant;
+    @ManyToMany(cascade = {CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinTable(name = "user_department",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "department_id"))
+    private Set<Department> departments = new LinkedHashSet<>();
 
-    public static User ofNew(String name, String username, String password, Set<Role> roles, Tenant tenant) {
+    @Column(name = "tenant_id")
+    @TenantId
+    private Long tenantId;
+
+    public static User ofNew(String name, String username, String password, Set<Role> roles, Set<Department> departments, Long tenant) {
         User user = new User();
         user.setName(name);
         Auth auth = new Auth();
@@ -53,20 +63,29 @@ public class User {
         auth.setPassword(new BCryptPasswordEncoder().encode(password));
         user.setAuth(auth);
         user.setRoles(roles);
-        user.setTenant(tenant);
+        user.setTenantId(tenant);
+        user.setDepartments(departments);
         return user;
     }
 
-    public static User ofNew(String name, String username, String password, Set<Role> roles) {
-        return ofNew(name, username, password, roles, null);
+    public static User ofNew(String name, String username, String password, Set<Role> roles, Set<Department> departments) {
+        return ofNew(name, username, password, roles, departments, null);
     }
 
-    public Tenant getTenant() {
-        return tenant;
+    public Set<Department> getDepartments() {
+        return departments;
     }
 
-    public void setTenant(Tenant tenant) {
-        this.tenant = tenant;
+    public void setDepartments(Set<Department> departments) {
+        this.departments = departments;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenant) {
+        this.tenantId = tenant;
     }
 
     public Set<Role> getRoles() {

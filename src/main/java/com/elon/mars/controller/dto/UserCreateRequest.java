@@ -5,55 +5,20 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.Set;
 
 
-public class UserCreateRequest {
-    /**
-     * 名称
-     */
-    @NotBlank
-    private String name;
-    /**
-     * 用户名
-     */
-    @NotBlank
-    private String username;
-    /**
-     * 密码
-     */
-    @NotBlank
-    private String password;
-    /**
-     * 角色ID列表
-     */
-    private Set<Long> roleIds;
-
-    public Set<Long> getRoleIds() {
-        return roleIds;
-    }
-
-    public void setRoleIds(Set<Long> roleIds) {
-        this.roleIds = roleIds;
-    }
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+/**
+ * 用户创建请求
+ *
+ * @param name          用户名称
+ * @param username      登录用户名
+ * @param password      登录密码
+ * @param roleIds       关联的角色ID列表
+ * @param departmentIds 关联的部门ID列表
+ */
+public record UserCreateRequest(
+        @NotBlank String name,
+        @NotBlank String username,
+        @NotBlank String password,
+        Set<Long> roleIds,
+        Set<Long> departmentIds
+) {
 }

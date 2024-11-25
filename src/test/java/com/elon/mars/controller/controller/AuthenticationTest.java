@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,26 +33,31 @@ public class AuthenticationTest {
 
     @MockBean
     UserRepository userRepository;
-    @Autowired
+    @MockBean
     private TenantRepository tenantRepository;
 
     @BeforeEach
     void setUp() {
-        Tenant tenant = Tenant.of("平台租户", null);
+        Tenant tenant = Tenant.of("平台租户", null, TenantType.PLATFORM);
         tenant.setId(1L);
 
-        Permission permission = Permission.of("foo", PermissionEnum.USER_MANAGE.name(), tenant);
-        Role role = Role.of("admin", Set.of(permission), tenant);
+        Permission permission = Permission.of("foo", PermissionEnum.USER_MANAGE.name());
+        permission.setTenantId(tenant.getId());
+        Role role = Role.of("admin", Set.of(permission));
+        role.setId(1L);
+        role.setTenantId(tenant.getId());
 
-        User user = User.ofNew("foo", "foo", "foo", Set.of(role), tenant);
+        User user = User.ofNew("foo", "foo", "foo", Set.of(role), new HashSet<>());
         user.setId(1L);
+        user.setTenantId(tenant.getId());
+
         given(userRepository.findFirstByAuth_Username(any())).willReturn(Optional.of(user));
         given(userRepository.count()).willReturn(1L);
+        given(tenantRepository.findById(any())).willReturn(Optional.of(tenant));
     }
 
     @Test
     void rootWhenAuthenticatedThenSaysHelloUser() throws Exception {
-        // @formatter:off
         MvcResult result = this.mvc.perform(post("/authentication")
                         .with(httpBasic("foo", "foo")))
                 .andExpect(status().isOk())
@@ -62,23 +68,18 @@ public class AuthenticationTest {
         this.mvc.perform(get("/")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(content().string("Hello, foo!"));
-        // @formatter:on
     }
 
     @Test
     void rootWhenUnauthenticatedThen401() throws Exception {
-        // @formatter:off
         this.mvc.perform(get("/"))
                 .andExpect(status().isUnauthorized());
-        // @formatter:on
     }
 
     @Test
     void tokenWhenBadCredentialsThen401() throws Exception {
-        // @formatter:off
         this.mvc.perform(post("/authentication").with(httpBasic("foo", "foo123")))
                 .andExpect(status().isUnauthorized());
-        // @formatter:on
     }
 
     @Test

@@ -1,45 +1,61 @@
 package com.elon.mars.domain;
 
+import com.elon.mars.config.SnowflakeGenerator;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.TenantId;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
 
 @Entity
-@Table(name = "permission")
+@Table(name = "permission", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_permission_code_tenant",
+                columnNames = {"code", "tenant_id"}
+        )
+})
 public class Permission {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "snowflake")
+    @GenericGenerator(name = "snowflake", type = SnowflakeGenerator.class)
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "code", nullable = false, unique = true)
+    @Column(name = "code", nullable = false)
     private String code;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", nullable = true)
-    private Tenant tenant;
+    @Column(name = "tenant_id")
+    @TenantId
+    private Long tenantId;
+
+    /**
+     * 静态构造方法,不带租户信息
+     */
+    public static Permission of(String name, String code) {
+        return Permission.of(name, code, null);
+    }
 
     /**
      * 静态构造方法
      */
-    public static Permission of(String name, String code, Tenant tenant) {
+    public static Permission of(String name, String code, Long tenantId) {
         Permission permission = new Permission();
         permission.setName(name);
         permission.setCode(code);
-        permission.setTenant(tenant);
+        permission.setTenantId(tenantId);
         return permission;
     }
 
-    public Tenant getTenant() {
-        return tenant;
+    public Long getTenantId() {
+        return tenantId;
     }
 
-    public void setTenant(Tenant tenant) {
-        this.tenant = tenant;
+    public void setTenantId(Long tenant) {
+        this.tenantId = tenant;
     }
 
     public String getName() {

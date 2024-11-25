@@ -1,6 +1,9 @@
 package com.elon.mars.domain;
 
+import com.elon.mars.config.SnowflakeGenerator;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.TenantId;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.LinkedHashSet;
@@ -8,14 +11,20 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "role")
+@Table(name = "role", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_role_name_tenant",
+                columnNames = {"name", "tenant_id"}
+        )
+})
 public class Role {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "snowflake")
+    @GenericGenerator(name = "snowflake", type = SnowflakeGenerator.class)
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @ManyToMany(cascade = {CascadeType.REFRESH, CascadeType.DETACH})
@@ -24,27 +33,34 @@ public class Role {
             inverseJoinColumns = @JoinColumn(name = "permission_id"))
     private Set<Permission> permissions = new LinkedHashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", nullable = true)
-    private Tenant tenant;
+    @Column(name = "tenant_id")
+    @TenantId
+    private Long tenantId;
+
+    /**
+     * 静态构造方法,不带租户信息
+     */
+    public static Role of(String name, Set<Permission> permissions) {
+        return Role.of(name, permissions, null);
+    }
 
     /**
      * 静态构造方法
      */
-    public static Role of(String name, Set<Permission> permissions, Tenant tenant) {
+    public static Role of(String name, Set<Permission> permissions, Long tenantId) {
         Role role = new Role();
         role.setName(name);
         role.setPermissions(permissions);
-        role.setTenant(tenant);
+        role.setTenantId(tenantId);
         return role;
     }
 
-    public Tenant getTenant() {
-        return tenant;
+    public Long getTenantId() {
+        return tenantId;
     }
 
-    public void setTenant(Tenant tenant) {
-        this.tenant = tenant;
+    public void setTenantId(Long tenant) {
+        this.tenantId = tenant;
     }
 
     public String getName() {

@@ -1,7 +1,6 @@
 package com.elon.mars.config;
 
 import com.elon.mars.domain.PermissionEnum;
-import com.elon.mars.domain.User;
 import com.elon.mars.repository.UserRepository;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -16,10 +15,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -35,9 +30,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -46,59 +39,10 @@ public class WebSecurityConfig {
 
     private final RSAPublicKey rsaPublicKey;
     private final RSAPrivateKey rsaPrivateKey;
-    private final UserRepository userRepository;
 
     public WebSecurityConfig(@Value("${jwt.public.key}") RSAPublicKey rsaPublicKey, @Value("${jwt.private.key}") RSAPrivateKey rsaPrivateKey, UserRepository userRepository) {
         this.rsaPublicKey = rsaPublicKey;
         this.rsaPrivateKey = rsaPrivateKey;
-        this.userRepository = userRepository;
-    }
-
-    @Bean
-    UserDetailsService users() {
-        return username -> {
-            User user = userRepository.findFirstByAuth_Username(username).orElseThrow(() -> new UsernameNotFoundException("username is not found"));
-            return new UserDetails() {
-                @Override
-                public Collection<? extends GrantedAuthority> getAuthorities() {
-                    return user.getRoles().stream()
-                            .flatMap(role -> role.getPermissions().stream())
-                            .map(permission -> (GrantedAuthority) permission::getCode)
-                            .distinct()
-                            .collect(Collectors.toList());
-                }
-
-                @Override
-                public String getPassword() {
-                    return user.getAuth().getPassword();
-                }
-
-                @Override
-                public String getUsername() {
-                    return user.getAuth().getUsername();
-                }
-
-                @Override
-                public boolean isAccountNonExpired() {
-                    return true;
-                }
-
-                @Override
-                public boolean isAccountNonLocked() {
-                    return true;
-                }
-
-                @Override
-                public boolean isCredentialsNonExpired() {
-                    return true;
-                }
-
-                @Override
-                public boolean isEnabled() {
-                    return true;
-                }
-            };
-        };
     }
 
     @Bean

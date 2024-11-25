@@ -5,43 +5,18 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.Set;
 
 
-public class UserUpdateRequest {
-    /**
-     * 名称
-     */
-    @NotBlank
-    private String name;
-    /**
-     * 用户名
-     */
-    @NotBlank
-    private String username;
-    /**
-     * 角色
-     */
-    private Set<Long> roleIds;
-
-    public Set<Long> getRoleIds() {
-        return roleIds;
-    }
-
-    public void setRoleIds(Set<Long> roleIds) {
-        this.roleIds = roleIds;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
+/**
+ * 用户信息更新请求
+ *
+ * @param name          用户名称
+ * @param username      登录用户名
+ * @param roleIds       关联的角色ID列表
+ * @param departmentIds 关联的部门ID列表
+ */
+public record UserUpdateRequest(
+        @NotBlank String name,
+        @NotBlank String username,
+        Set<Long> roleIds,
+        Set<Long> departmentIds
+) {
 }
