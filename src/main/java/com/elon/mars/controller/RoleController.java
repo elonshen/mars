@@ -8,7 +8,6 @@ import com.elon.mars.domain.Permission;
 import com.elon.mars.domain.Role;
 import com.elon.mars.repository.PermissionRepository;
 import com.elon.mars.repository.RoleRepository;
-import com.elon.mars.service.SecurityService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
@@ -77,7 +76,6 @@ public class RoleController {
     public RoleVO create(@RequestBody @Valid RoleCreateRequest request) {
         // 转换请求为实体
         Role role = roleMapper.toRole(request);
-        role.setTenantId(SecurityService.getCurrentTenantId());
 
         // 设置权限
         if (request.permissionIds() != null && !request.permissionIds().isEmpty()) {

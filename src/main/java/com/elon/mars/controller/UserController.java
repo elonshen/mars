@@ -87,7 +87,6 @@ public class UserController {
      */
     @GetMapping("/me")
     public UserVO getUserInfo() {
-        logger.warning("获取当前租户:" + securityService.getCurrentTenant().getName());
         return userMapper.toUserVo(securityService.getCurrentUser());
     }
 

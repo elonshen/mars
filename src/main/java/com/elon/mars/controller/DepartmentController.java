@@ -6,7 +6,6 @@ import com.elon.mars.domain.Department;
 import com.elon.mars.domain.User;
 import com.elon.mars.repository.DepartmentRepository;
 import com.elon.mars.repository.UserRepository;
-import com.elon.mars.service.SecurityService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,7 +77,6 @@ public class DepartmentController {
         // 创建部门
         Department department = new Department();
         department.setName(request.name());
-        department.setTenantId(SecurityService.getCurrentTenantId());
 
         // 设置父部门
         if (request.parentId() != null) {
