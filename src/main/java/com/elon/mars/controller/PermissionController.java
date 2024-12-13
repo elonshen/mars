@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/permissions")
-@Tag(name = "权限管理")
+@Tag(name = "权限资源")
 public class PermissionController {
     private final PermissionRepository permissionRepository;
     private final PermissionMapper permissionMapper;

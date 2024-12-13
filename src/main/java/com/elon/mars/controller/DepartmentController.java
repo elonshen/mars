@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/departments")
-@Tag(name = "部门管理")
+@Tag(name = "部门资源")
 public class DepartmentController {
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;

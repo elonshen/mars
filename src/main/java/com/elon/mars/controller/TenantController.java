@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/tenants")
-@Tag(name = "租户管理")
+@Tag(name = "租户资源")
 public class TenantController {
     private final UserRepository userRepository;
     private final TenantRepository tenantRepository;

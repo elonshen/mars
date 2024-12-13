@@ -25,7 +25,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/roles")
-@Tag(name = "角色管理")
+@Tag(name = "角色资源")
 public class RoleController {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;

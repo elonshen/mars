@@ -1,9 +1,6 @@
 package com.elon.mars.controller;
 
-import com.elon.mars.controller.dto.UserCreateRequest;
-import com.elon.mars.controller.dto.UserUpdatePasswordRequest;
-import com.elon.mars.controller.dto.UserUpdateRequest;
-import com.elon.mars.controller.dto.UserVO;
+import com.elon.mars.controller.dto.*;
 import com.elon.mars.controller.mapper.UserMapper;
 import com.elon.mars.domain.Department;
 import com.elon.mars.domain.Role;
@@ -11,6 +8,7 @@ import com.elon.mars.domain.User;
 import com.elon.mars.repository.DepartmentRepository;
 import com.elon.mars.repository.RoleRepository;
 import com.elon.mars.repository.UserRepository;
+import com.elon.mars.service.PasswordValidator;
 import com.elon.mars.service.SecurityService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.criteria.Join;
@@ -32,11 +30,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping(path = "/users")
-@Tag(name = "用户管理")
+@Tag(name = "用户资源")
 public class UserController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -44,7 +41,6 @@ public class UserController {
     private final RoleRepository roleRepository;
     private final SecurityService securityService;
     private final DepartmentRepository departmentRepository;
-    private final Logger logger = Logger.getLogger(UserController.class.getName());
 
     public UserController(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, RoleRepository roleRepository, SecurityService securityService, DepartmentRepository departmentRepository) {
         this.userRepository = userRepository;
@@ -63,6 +59,13 @@ public class UserController {
         if (userRepository.findByAuth_Username(userCreateRequest.username()).isPresent()) {
             throw new RuntimeException("用户名已存在");
         }
+
+        // 2. 密码强度校验
+        PasswordValidator.validate(
+                userCreateRequest.password(),
+                userCreateRequest.username(),
+                PasswordValidationRule.DEFAULT
+        );
 
         User user = userMapper.toUser(userCreateRequest);
 
@@ -188,6 +191,13 @@ public class UserController {
     @PutMapping("/{id}/password")
     public void updateUserPassword(@PathVariable Long id, @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest) {
         User targetUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("用户ID不存在"));
+        // 密码强度校验
+        PasswordValidator.validate(
+                userUpdatePasswordRequest.password(),
+                targetUser.getAuth().getUsername(),
+                PasswordValidationRule.DEFAULT
+        );
+
         targetUser.getAuth().setPassword(passwordEncoder.encode(userUpdatePasswordRequest.password()));
         userRepository.save(targetUser);
     }
