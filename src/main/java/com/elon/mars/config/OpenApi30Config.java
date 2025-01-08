@@ -19,7 +19,7 @@ public class OpenApi30Config {
         return new OpenAPI()
                 .addSecurityItem(new SecurityRequirement().addList(bearerAuth))
                 .components(new Components().addSecuritySchemes(bearerAuth, new SecurityScheme().name(bearerAuth).type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")))
-                .info(new Info().title("接口文档"))
+                .info(new Info().title("接口文档").version("1"))
                 .externalDocs(new ExternalDocumentation().url("/ApiDoc.html").description("接口说明"));
     }
 }
