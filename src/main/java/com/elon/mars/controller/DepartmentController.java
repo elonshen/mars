@@ -6,6 +6,7 @@ import com.elon.mars.domain.Department;
 import com.elon.mars.domain.User;
 import com.elon.mars.repository.DepartmentRepository;
 import com.elon.mars.repository.UserRepository;
+import com.elon.mars.service.SecurityService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,9 +35,9 @@ public class DepartmentController {
      * @return 部门树形结构
      */
     @GetMapping("/tree")
-    public List<TreeNodeVO> getDepartmentTree() {
+    public List<DeptTreeNodeVO> getDepartmentTree() {
         // 获取所有顶层部门
-        List<Department> topDepartments = departmentRepository.findByParentIsNull();
+        List<Department> topDepartments = departmentRepository.findByParentNullAndTenantId(SecurityService.getCurrentTenantId());
 
         // 递归构建树结构
         return topDepartments.stream().map(this::buildDepartmentTreeNode).collect(Collectors.toList());
@@ -48,9 +49,9 @@ public class DepartmentController {
      * @return 部门和用户的树形结构
      */
     @GetMapping("/tree/with-users")
-    public List<TreeNodeVO> getDepartmentUserTree() {
+    public List<DeptTreeNodeVO> getDepartmentUserTree() {
         // 获取所有顶层部门
-        List<Department> topDepartments = departmentRepository.findByParentIsNull();
+        List<Department> topDepartments = departmentRepository.findByParentNullAndTenantId(SecurityService.getCurrentTenantId());
 
         // 递归构建树结构
         return topDepartments.stream()
@@ -172,14 +173,14 @@ public class DepartmentController {
     }
 
     // 递归构建部门树节点
-    private TreeNodeVO buildDepartmentTreeNode(Department department) {
-        List<TreeNodeVO> children = department.getChildren().stream()
+    private DeptTreeNodeVO buildDepartmentTreeNode(Department department) {
+        List<DeptTreeNodeVO> children = department.getChildren().stream()
                 .map(this::buildDepartmentTreeNode)
                 .collect(Collectors.toList());
 
-        return new TreeNodeVO(
-                department.getId().toString(),
-                department.getParent() != null ? department.getParent().getId().toString() : null,
+        return new DeptTreeNodeVO(
+                department.getId(),
+                department.getParent() != null ? department.getParent().getId() : null,
                 department.getName(),
                 TreeNodeType.DEPARTMENT,
                 children
@@ -187,8 +188,8 @@ public class DepartmentController {
     }
 
     // 递归构建部门和用户树节点
-    private TreeNodeVO buildDepartmentUserTreeNode(Department department) {
-        List<TreeNodeVO> children = new ArrayList<>();
+    private DeptTreeNodeVO buildDepartmentUserTreeNode(Department department) {
+        List<DeptTreeNodeVO> children = new ArrayList<>();
 
         // 添加子部门节点
         children.addAll(department.getChildren().stream()
@@ -197,8 +198,8 @@ public class DepartmentController {
 
         // 添加用户节点
         children.addAll(department.getUsers().stream()
-                .map(user -> new TreeNodeVO(String.valueOf(user.getId()), department.getId().toString(), user.getName(), TreeNodeType.USER, Collections.emptyList())).toList());
+                .map(user -> new DeptTreeNodeVO(user.getId(), department.getId(), user.getName(), TreeNodeType.USER, Collections.emptyList())).toList());
 
-        return new TreeNodeVO(department.getId().toString(), department.getParent() != null ? department.getParent().getId().toString() : null, department.getName(), TreeNodeType.DEPARTMENT, children);
+        return new DeptTreeNodeVO(department.getId(), department.getParent() != null ? department.getParent().getId() : null, department.getName(), TreeNodeType.DEPARTMENT, children);
     }
 }

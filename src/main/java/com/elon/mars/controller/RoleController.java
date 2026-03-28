@@ -8,6 +8,7 @@ import com.elon.mars.domain.Permission;
 import com.elon.mars.domain.Role;
 import com.elon.mars.repository.PermissionRepository;
 import com.elon.mars.repository.RoleRepository;
+import com.elon.mars.service.SecurityService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
@@ -46,13 +47,11 @@ public class RoleController {
      * @return 角色列表分页数据
      */
     @GetMapping
-    public Page<RoleVO> list(
-            @RequestParam(required = false) String name,
-            @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
-
+    public Page<RoleVO> list(@RequestParam(required = false) String name, @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         Specification<Role> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
+            // 租户过滤
+            predicates.add(cb.equal(root.get("tenantId"), SecurityService.getCurrentTenantId()));
             // 添加名称搜索条件
             if (name != null && !name.isEmpty()) {
                 predicates.add(cb.like(root.get("name"), "%" + name + "%"));

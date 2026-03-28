@@ -4,16 +4,16 @@ import com.elon.mars.domain.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface DepartmentRepository extends JpaRepository<Department, Long>, JpaSpecificationExecutor<Department> {
     /**
      * 获取最顶层的部门列表（不带父部门的）
-     *
-     * @return 顶层部门列表
      */
-    List<Department> findByParentIsNull();
+    List<Department> findByParentNullAndTenantId(Long tenantId);
 
     /**
      * 判断部门名称在同级下是否重复

@@ -2,9 +2,11 @@ package com.elon.mars.controller;
 
 import com.elon.mars.controller.dto.*;
 import com.elon.mars.controller.mapper.UserMapper;
+import com.elon.mars.domain.Auth;
 import com.elon.mars.domain.Department;
 import com.elon.mars.domain.Role;
 import com.elon.mars.domain.User;
+import com.elon.mars.repository.AuthRepository;
 import com.elon.mars.repository.DepartmentRepository;
 import com.elon.mars.repository.RoleRepository;
 import com.elon.mars.repository.UserRepository;
@@ -23,6 +25,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -41,14 +44,16 @@ public class UserController {
     private final RoleRepository roleRepository;
     private final SecurityService securityService;
     private final DepartmentRepository departmentRepository;
+    private final AuthRepository authRepository;
 
-    public UserController(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, RoleRepository roleRepository, SecurityService securityService, DepartmentRepository departmentRepository) {
+    public UserController(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, RoleRepository roleRepository, SecurityService securityService, DepartmentRepository departmentRepository, AuthRepository authRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.securityService = securityService;
         this.departmentRepository = departmentRepository;
+        this.authRepository = authRepository;
     }
 
     /**
@@ -56,11 +61,13 @@ public class UserController {
      */
     @PostMapping
     public void create(@RequestBody @Valid UserCreateRequest userCreateRequest) {
-        if (userRepository.findByAuth_Username(userCreateRequest.username()).isPresent()) {
+        /*1.1 用户名校验*/
+        Auth auth = authRepository.findByUsernameNative(userCreateRequest.username());
+        if (auth != null) {
             throw new RuntimeException("用户名已存在");
         }
 
-        // 2. 密码强度校验
+        // 1.2 密码强度校验
         PasswordValidator.validate(
                 userCreateRequest.password(),
                 userCreateRequest.username(),
@@ -128,11 +135,11 @@ public class UserController {
 
             // 创建时间过滤
             if (startCreateTime != null && endCreateTime != null) {
-                predicatesList.add(criteriaBuilder.between(root.get("createTime"), startCreateTime, endCreateTime));
+                predicatesList.add(criteriaBuilder.between(root.get("createdTime"), startCreateTime, endCreateTime));
             } else if (startCreateTime == null && endCreateTime != null) {
-                predicatesList.add(criteriaBuilder.lessThanOrEqualTo(root.get("createTime"), endCreateTime));
+                predicatesList.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdTime"), endCreateTime));
             } else if (startCreateTime != null) {
-                predicatesList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createTime"), startCreateTime));
+                predicatesList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdTime"), startCreateTime));
             }
 
             return criteriaBuilder.and(predicatesList.toArray(new Predicate[0]));
@@ -147,8 +154,16 @@ public class UserController {
      * @param id 用户ID
      */
     @DeleteMapping("/{id}")
+    @Transactional
     public void deleteById(@PathVariable Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("用户不存在"));
         userRepository.deleteById(id);
+
+        /* 如果Auth没有被其他租户的user引用，则删除该Auth */
+        Auth auth = user.getAuth();
+        if (userRepository.countByAuth_UsernameNative(auth.getUsername()) == 1) {
+            authRepository.deleteById(auth.getId());
+        }
     }
 
     /**
@@ -159,7 +174,7 @@ public class UserController {
      */
     @PutMapping("/{id}")
     public void updateUserInfo(@PathVariable Long id, @RequestBody @Valid UserUpdateRequest userUpdateRequest) {
-        if (userRepository.existsByAuth_UsernameAndIdNot(userUpdateRequest.username(), id)) {
+        if (userRepository.existsByAuth_UsernameAndIdNotAndTenantId(userUpdateRequest.username(), id,SecurityService.getCurrentTenantId())) {
             throw new RuntimeException("用户名已存在");
         }
 

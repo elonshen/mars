@@ -11,11 +11,11 @@ import java.util.List;
  * @param type     节点类型
  * @param children 子节点列表
  */
-public record TreeNodeVO(
-        String id,
-        String parentId,
+public record DeptTreeNodeVO(
+        Long id,
+        Long parentId,
         String name,
         TreeNodeType type,
-        List<TreeNodeVO> children
+        List<DeptTreeNodeVO> children
 ) {
 }

@@ -9,6 +9,6 @@ public interface PermissionRepository extends JpaRepository<Permission, Long>, J
     void deleteByTenantId(Long tenantId);
 
     /*租户操作*/
-    boolean existsByCode(String code);
+    boolean existsByCodeAndTenantId(String code, Long tenantId);
 
 }

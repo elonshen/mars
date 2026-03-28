@@ -1,6 +1,7 @@
 package com.elon.mars.controller.controller;
 
 import com.elon.mars.domain.*;
+import com.elon.mars.repository.AuthRepository;
 import com.elon.mars.repository.TenantRepository;
 import com.elon.mars.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,7 @@ public class AuthenticationTest {
         role.setId(1L);
         role.setTenantId(tenant.getId());
 
-        User user = User.ofNew("foo", "foo", "foo", Set.of(role), new HashSet<>());
+        User user = User.ofNew("foo", "foo", "Foo@Foo123", Set.of(role), new HashSet<>());
         user.setId(1L);
         user.setTenantId(tenant.getId());
 
@@ -59,7 +60,7 @@ public class AuthenticationTest {
     @Test
     void rootWhenAuthenticatedThenSaysHelloUser() throws Exception {
         MvcResult result = this.mvc.perform(post("/authentication")
-                        .with(httpBasic("foo", "foo")))
+                        .with(httpBasic("foo", "Foo@Foo123")))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -78,7 +79,7 @@ public class AuthenticationTest {
 
     @Test
     void tokenWhenBadCredentialsThen401() throws Exception {
-        this.mvc.perform(post("/authentication").with(httpBasic("foo", "foo123")))
+        this.mvc.perform(post("/authentication").with(httpBasic("foo", "Foo@Foo1231")))
                 .andExpect(status().isUnauthorized());
     }
 

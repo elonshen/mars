@@ -26,6 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         // 只有在首次用用户名密码登录时才会执行loadUserByUsername方法,默认登录第一个租户
         User user = userRepository.findFirstByAuth_Username(username).orElseThrow(() -> new UsernameNotFoundException("username is not found"));
         user.getRoles().stream().flatMap(role -> role.getPermissions().stream()).forEach(permission -> System.out.println(permission.getCode()));
+
         return new UserDetails() {
             @Override
             public Collection<? extends GrantedAuthority> getAuthorities() {

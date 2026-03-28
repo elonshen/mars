@@ -32,6 +32,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
+import static com.elon.mars.domain.PermissionEnum.*;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -64,13 +65,23 @@ public class WebSecurityConfig {
                                 "/*/*.html", "/*/*.js", "/*/*.css", "/*/*.ico", "/*/*.woff", "/*/*.ttf",
                                 "/ApiDoc.html")
                         .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users").hasAuthority("SCOPE_" + PermissionEnum.USER_MANAGE.name())
-                        .requestMatchers(HttpMethod.DELETE, "/users/*").hasAuthority("SCOPE_" + PermissionEnum.USER_MANAGE.name())
+                        .requestMatchers(HttpMethod.POST, "/users").hasAuthority("SCOPE_" + USER_MANAGE.name())
+                        .requestMatchers(HttpMethod.PUT, "/users/*").hasAuthority("SCOPE_" + USER_MANAGE.name())
+                        .requestMatchers(HttpMethod.DELETE, "/users/*").hasAuthority("SCOPE_" + USER_MANAGE.name())
+                        .requestMatchers(HttpMethod.POST, "/roles").hasAuthority("SCOPE_" + ROLE_MANAGE.name())
+                        .requestMatchers(HttpMethod.PUT, "/roles/*").hasAuthority("SCOPE_" + ROLE_MANAGE.name())
+                        .requestMatchers(HttpMethod.DELETE, "/roles/*").hasAuthority("SCOPE_" + ROLE_MANAGE.name())
+                        .requestMatchers(HttpMethod.POST, "/permissions").hasAuthority("SCOPE_" + PERMISSION_MANAGE.name())
+                        .requestMatchers(HttpMethod.PUT, "/permissions/*").hasAuthority("SCOPE_" + PERMISSION_MANAGE.name())
+                        .requestMatchers(HttpMethod.DELETE, "/permissions/*").hasAuthority("SCOPE_" + PERMISSION_MANAGE.name())
+                        .requestMatchers(HttpMethod.POST, "/departments").hasAuthority("SCOPE_" + DEPARTMENT_MANAGE.name())
+                        .requestMatchers(HttpMethod.PUT, "/departments/*").hasAuthority("SCOPE_" + DEPARTMENT_MANAGE.name())
+                        .requestMatchers(HttpMethod.DELETE, "/departments/*").hasAuthority("SCOPE_" + DEPARTMENT_MANAGE.name())
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling((exceptions) -> exceptions
-                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                        .accessDeniedHandler(new CustomAccessDeniedHandler())
                 );
 
         return httpSecurity.build();

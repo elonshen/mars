@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component
 public class Initializer implements CommandLineRunner {
@@ -40,13 +42,25 @@ public class Initializer implements CommandLineRunner {
                     tenant.setId(114166601818112L);
                     tenantRepository.save(tenant);
 
-                    Permission permission = Permission.of("用户管理", PermissionEnum.USER_MANAGE.name());
-                    permission = permissionRepository.save(permission);
+                    Set<PermissionEnum> permissionEnums = Set.of(
+                            PermissionEnum.TENANT_MANAGE,
+                            PermissionEnum.USER_MANAGE,
+                            PermissionEnum.PERMISSION_MANAGE,
+                            PermissionEnum.ROLE_MANAGE,
+                            PermissionEnum.DEPARTMENT_MANAGE);
 
-                    Role role = Role.of("管理员", new HashSet<>(List.of(permission)));
+                    Set<Permission> permissions = permissionEnums.stream()
+                            .map(p -> {
+                                Permission permission = Permission.of(p.getName(), p.name(), tenant.getId());
+                                return permissionRepository.save(permission);
+                            })
+                            .collect(Collectors.toSet());
+
+                    Role role = Role.of("系统管理员", permissions, tenant.getId());
                     role = roleRepository.save(role);
 
-                    User user = User.ofNew("admin", "admin", "admin123", new HashSet<>(List.of(role)), new HashSet<>());
+                    User user = User.ofNew("admin", "admin", "admin123",
+                            new HashSet<>(List.of(role)), new HashSet<>(), tenant.getId());
                     userRepository.save(user);
                 }
             } catch (Exception e) {

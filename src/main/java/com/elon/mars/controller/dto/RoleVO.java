@@ -12,6 +12,6 @@ import java.util.Set;
 public record RoleVO(
         Long id,
         String name,
-        Set<Long> permissionIds
-) {
-}
+        Set<Long> permissionIds,
+        Set<PermissionVO> permissions
+) {}

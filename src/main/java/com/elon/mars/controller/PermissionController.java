@@ -6,6 +6,7 @@ import com.elon.mars.controller.dto.PermissionVO;
 import com.elon.mars.controller.mapper.PermissionMapper;
 import com.elon.mars.domain.Permission;
 import com.elon.mars.repository.PermissionRepository;
+import com.elon.mars.service.SecurityService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
@@ -48,7 +49,9 @@ public class PermissionController {
         Specification<Permission> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // 添加查询条件
+            // 租户过滤
+            predicates.add(cb.equal(root.get("tenantId"), SecurityService.getCurrentTenantId()));
+
             if (name != null && !name.isEmpty()) {
                 predicates.add(cb.like(root.get("name"), "%" + name + "%"));
             }
@@ -73,7 +76,7 @@ public class PermissionController {
     @PostMapping
     public PermissionVO create(@RequestBody @Valid PermissionCreateRequest request) {
         /* 校验权限代码是否在租户内重复 */
-        if (permissionRepository.existsByCode(request.code())) {
+        if (permissionRepository.existsByCodeAndTenantId(request.code(), SecurityService.getCurrentTenantId())) {
             throw new RuntimeException("权限代码在租户内重复");
         }
 

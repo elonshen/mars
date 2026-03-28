@@ -5,29 +5,33 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     /* 跨租户操作 */
     @Query(value = "SELECT u.* FROM user u INNER JOIN auth a ON u.auth_id = a.id WHERE a.id = :authId AND u.tenant_id = :tenantId", nativeQuery = true)
     Optional<User> findByAuthIdAndTenantIdNative(@Param("authId") Long authId, @Param("tenantId") Long tenantId);
 
-    List<User> findAllByTenantId(Long tenantId);
-
     @Query(value = "select u.* from user u inner join auth a on u.auth_id = a.id where a.id = :authId", nativeQuery = true)
     List<User> findByAuth_IdNative(Long authId);
 
+    @Query(value = "SELECT COUNT(u.id) FROM user u INNER JOIN auth a ON u.auth_id = a.id WHERE a.username = :username", nativeQuery = true)
+    long countByAuth_UsernameNative(String username);
+
+    /*方法名显示声明租户ID，仅限平台租户使用或系统任务*/
     long countByTenantId(Long tenantId);
 
     void deleteByTenantId(Long tenantId);
 
+    List<User> findAllByTenantId(Long tenantId);
 
     /* 租户操作 */
     Optional<User> findFirstByAuth_Username(String username);
 
-    Optional<User> findByAuth_Username(String username);
+    boolean existsByAuth_UsernameAndIdNotAndTenantId(String username, Long id, Long tenantId);
 
-    boolean existsByAuth_UsernameAndIdNot(String username, Long id);
 }

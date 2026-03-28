@@ -2,9 +2,11 @@ package com.elon.mars.user;
 
 import com.elon.mars.controller.dto.UserCreateRequest;
 import com.elon.mars.domain.*;
+import com.elon.mars.repository.AuthRepository;
 import com.elon.mars.repository.TenantRepository;
 import com.elon.mars.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @SpringBootTest
 @AutoConfigureMockMvc
+
 class UserControllerTest {
 
     @Autowired
@@ -34,6 +37,8 @@ class UserControllerTest {
     private ObjectMapper objectMapper;
     @MockBean
     private TenantRepository tenantRepository;
+    @MockBean
+    private AuthRepository authRepository;
 
     /**
      * 测试普通租户
@@ -41,7 +46,7 @@ class UserControllerTest {
     @Test
     void testCreateUserByRepeatUserName() throws Exception {
         String token = mockAdminAndGetToken();
-        UserCreateRequest userCreateRequest = new UserCreateRequest("foo", "foo", "foo", null, new HashSet<>());
+        UserCreateRequest userCreateRequest = new UserCreateRequest("foo", "foo", "Fss@fss123", null, new HashSet<>());
         System.out.println(token);
         assertThatThrownBy(() ->
                 this.mockMvc.perform(post("/users")
@@ -61,16 +66,17 @@ class UserControllerTest {
         Role role = Role.of("admin", Set.of(permission), tenant.getId());
         role.setTenantId(tenant.getId());
 
-        User user = User.ofNew("foo", "foo", "foo", Set.of(role), new HashSet<>());
+        User user = User.ofNew("foo", "foo", "Fss@fss123", Set.of(role), new HashSet<>());
         user.setId(2L);
         user.setTenantId(tenant.getId());
+        Auth auth = user.getAuth();
 
+        given(this.authRepository.findByUsernameNative("foo")).willReturn(auth);
         given(this.userRepository.findFirstByAuth_Username("foo")).willReturn(Optional.of(user));
-        given(this.userRepository.findByAuth_Username("foo")).willReturn(Optional.of(user));
         given(this.tenantRepository.findById(tenant.getId())).willReturn(Optional.of(tenant));
 
         return this.mockMvc.perform(post("/authentication")
-                        .with(httpBasic("foo", "foo")))
+                        .with(httpBasic("foo", "Fss@fss123")))
                 .andReturn().getResponse().getContentAsString();
     }
 }

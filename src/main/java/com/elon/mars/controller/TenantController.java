@@ -9,6 +9,7 @@ import com.elon.mars.repository.PermissionRepository;
 import com.elon.mars.repository.RoleRepository;
 import com.elon.mars.repository.TenantRepository;
 import com.elon.mars.repository.UserRepository;
+import com.elon.mars.service.JWTService;
 import com.elon.mars.service.SecurityService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.criteria.Predicate;
@@ -18,17 +19,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,16 +32,16 @@ public class TenantController {
     private final UserRepository userRepository;
     private final TenantRepository tenantRepository;
     private final TenantMapper tenantMapper;
-    private final JwtEncoder encoder;
     private final SecurityService securityService;
     private final PermissionRepository permissionRepository;
     private final RoleRepository roleRepository;
+    private final JWTService jwtService;
 
-    public TenantController(UserRepository userRepository, TenantRepository tenantRepository, TenantMapper tenantMapper, JwtEncoder encoder, SecurityService securityService, PermissionRepository permissionRepository, RoleRepository roleRepository) {
+    public TenantController(UserRepository userRepository, TenantRepository tenantRepository, TenantMapper tenantMapper, SecurityService securityService, PermissionRepository permissionRepository, RoleRepository roleRepository, JWTService jwtService) {
         this.userRepository = userRepository;
         this.tenantRepository = tenantRepository;
         this.tenantMapper = tenantMapper;
-        this.encoder = encoder;
+        this.jwtService = jwtService;
         this.securityService = securityService;
         this.permissionRepository = permissionRepository;
         this.roleRepository = roleRepository;
@@ -70,60 +64,39 @@ public class TenantController {
         List<Tenant> tenants = tenantRepository.findAllById(tenantIds);
         return tenantMapper.toTenantVOs(tenants);
     }
+    /**
+     * 获取当前租户信息
+     */
+    @GetMapping("/current")
+    public TenantVO getCurrentTenant() {
+        Tenant tenant = securityService.getCurrentTenant();
+        return tenantMapper.toTenantVO(tenant);
+    }
 
     /**
      * 切换到指定租户
-     *
-     * @param tenantId 目标租户ID
-     * @return 新租户的JWT Token
      */
     @PostMapping("/{tenantId}/switch")
     public String switchTenant(@PathVariable Long tenantId) {
-
         // 验证用户是否有权限访问目标租户
         Long authId = securityService.getCurrentUser().getAuth().getId();
 
-        User user = userRepository.findByAuthIdAndTenantIdNative(authId, tenantId).orElseThrow(() -> new RuntimeException("您没有访问该租户的权限"));
+        User user = userRepository.findByAuthIdAndTenantIdNative(authId, tenantId)
+                .orElseThrow(() -> new RuntimeException("您没有访问该租户的权限"));
 
-        // 获取租户信息
-        Tenant tenant = tenantRepository.findByIdNative(tenantId).orElseThrow(() -> new RuntimeException("租户不存在"));
+        Tenant tenant = tenantRepository.findById(tenantId)
+                .orElseThrow(() -> new RuntimeException("租户不存在"));
 
-        // 获取用户在该租户下的权限
-        String scope = user.getRoles().stream()
-                .filter(role -> role.getTenantId().equals(tenantId))
-                .flatMap(role -> role.getPermissions().stream())
-                .map(Permission::getCode)
-                .distinct()
-                .collect(Collectors.joining(" "));
-
-        // 生成新的JWT token
-        Instant now = Instant.now();
-        long expiry = 36000L;
-
-        JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer("self")
-                .issuedAt(now)
-                .expiresAt(now.plusSeconds(expiry))
-                .subject(user.getAuth().getUsername())
-                .claim("scope", scope)
-                .claim("userId", user.getId())
-                .claim("tenantId", tenantId)
-                .claim("tenantType", tenant.getTenantType().name())
-                .build();
-
-        return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        return jwtService.generateToken(user, tenant);
     }
 
     /**
      * 获取租户列表
-     *
-     * @param name     租户名称,支持模糊查询,可选
-     * @param pageable 分页参数
-     * @return 租户列表分页数据
-     * @throws RuntimeException 当非平台租户尝试访问时抛出异常
      */
     @GetMapping
-    public Page<TenantVO> list(@RequestParam(required = false) String name, @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
+    public Page<TenantVO> list(
+            @RequestParam(required = false) String name,
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         if (!SecurityService.isPlatformTenant()) {
             throw new RuntimeException("只有平台租户可以查看租户列表");
         }
@@ -142,10 +115,6 @@ public class TenantController {
 
     /**
      * 创建新租户
-     *
-     * @param request 租户创建请求
-     * @return 创建成功的租户信息
-     * @throws RuntimeException 当非平台租户尝试创建或租户名称重复时抛出异常
      */
     @PostMapping
     @Transactional
@@ -166,13 +135,27 @@ public class TenantController {
         tenant = tenantRepository.save(tenant);
 
         // 2. 初始化权限
-        Permission userManagePermission = Permission.of("用户管理", PermissionEnum.USER_MANAGE.name(), tenant.getId());
-        userManagePermission = permissionRepository.save(userManagePermission);
+        Set<PermissionEnum> permissionEnums = switch (request.tenantType()) {
+            case NORMAL -> Arrays.stream(PermissionEnum.values())
+                    .filter(p -> p != PermissionEnum.TENANT_MANAGE)
+                    .collect(Collectors.toSet());
+            case REGULATORY -> Set.of(
+                    PermissionEnum.USER_MANAGE,
+                    PermissionEnum.PERMISSION_MANAGE,
+                    PermissionEnum.ROLE_MANAGE,
+                    PermissionEnum.DEPARTMENT_MANAGE);
+        };
+
+        Tenant finalTenant = tenant;
+        Set<Permission> permissions = permissionEnums.stream()
+                .map(p -> {
+                    Permission permission = Permission.of(p.getName(), p.name(), finalTenant.getId());
+                    return permissionRepository.save(permission);
+                })
+                .collect(Collectors.toSet());
 
         // 3. 创建管理员角色
-        Set<Permission> adminPermissions = new HashSet<>();
-        adminPermissions.add(userManagePermission);
-        Role adminRole = Role.of("系统管理员", adminPermissions, tenant.getId());
+        Role adminRole = Role.of("系统管理员", permissions, tenant.getId());
         adminRole = roleRepository.save(adminRole);
 
         // 4. 创建租户管理员用户 - 使用当前平台管理员的认证账号

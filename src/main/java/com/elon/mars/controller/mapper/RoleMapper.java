@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {PermissionMapper.class})
 public interface RoleMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tenantId", ignore = true)

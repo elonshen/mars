@@ -81,14 +81,14 @@ public class TenantDataIsolationTest {
         normalRole = roleRepository.saveAndFlush(normalRole);
 
         // 创建用户并分配角色
-        User platformUser = User.ofNew("platform", "platform", "platform", Set.of(platformRole), new HashSet<>(), platformTenant.getId());
-        User normalUser = User.ofNew("normal", "normal", "normal", Set.of(normalRole), new HashSet<>(), normalTenant.getId());
+        User platformUser = User.ofNew("platform", "platform", "Platform123", Set.of(platformRole), new HashSet<>(), platformTenant.getId());
+        User normalUser = User.ofNew("normal", "normal", "Normal123", Set.of(normalRole), new HashSet<>(), normalTenant.getId());
         userRepository.saveAndFlush(platformUser);
         userRepository.saveAndFlush(normalUser);
 
         // 获取认证token
-        platformUserToken = getAuthToken("platform", "platform");
-        normalUserToken = getAuthToken("normal", "normal");
+        platformUserToken = getAuthToken("platform", "Platform123");
+        normalUserToken = getAuthToken("normal", "Pormal123");
     }
 
     @Test

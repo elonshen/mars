@@ -12,7 +12,9 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Table(name = "`user`")
+@Table(name = "`user`", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_user_auth_tenant", columnNames = {"auth_id", "tenant_id"})
+})
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class User {
